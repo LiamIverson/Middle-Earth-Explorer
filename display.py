@@ -1,35 +1,65 @@
 import os
+import sys
 from ascii_magic import AsciiArt
 
-EXAMPLE_RES_PATH = "resources\\ExampleResource.png"
+TESTMODE = False
+
+TEST_NUM_COLUMNS = 80
+TEST_RES_PATH = "resources\\ExampleResource.png"
+
+CENTER_ALIGN_PADDING  = 100
 
 class Display:
     def __init__(self, params: dict):
-        self.player = params['player']
-        self.display_gui(self.player)
-        # self.display_resource(EXAMPLE_RES_PATH)
+        if TESTMODE == False:
+            self.player = params['player']
+            self.display_gui(self.player)
+        else:
+            self.display_resource(TEST_RES_PATH)
 
     def clear_screen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
     def display_gui(self, player):
         self.clear_screen()
-        print("##############################")
-        print("#      Middle-earth Game     #")
-        print("##############################\n")
-        print(f"Player: {player.name}")
+        print("##############################".center(CENTER_ALIGN_PADDING))
+        print("#      Middle-earth Game     #".center(CENTER_ALIGN_PADDING))
+        print("##############################".center(CENTER_ALIGN_PADDING))
+        print('\n')
+        self.display_resource(TEST_RES_PATH)
 
-        if player.location:
-            print(f"Location: {player.location.name}")
-        else:
-            print("Location: Unknown")
+        print(f"\n\n\nPlayer: {player.name}")
 
-        print("------------------------------")
-        player.display_inventory()
-        print(f"Hunger: {player.hunger}/10\n")
+        # if player.location:
+        #     print(f"Location: {player.location.name}")
+        # else:
+        #     print("Location: Unknown")
 
-    def display_resource(self, path):
+        # print("------------------------------")
+        # player.display_inventory()
+        # print(f"Hunger: {player.hunger}/10\n")
+
+
+    def display_resource(self, path: str):
+        """Converts and displays resource as ASCII art
+
+        Parameters:
+        path (str): Local path to image resource
+            SHALL BE 3x2 ASPECT RATIO
+
+        Returns:
+        None
+        """
         res = AsciiArt.from_image(path)
-        res.to_terminal()
+        numConsoleLines = TEST_NUM_COLUMNS
+        ascii_data = res.to_ascii(columns=numConsoleLines, monochrome=True)
+        
+        # Graphics writer function
+        for i in range(int(round(len(ascii_data)/numConsoleLines))):
+            sys.stdout.write(ascii_data[i*numConsoleLines:(i+1)*numConsoleLines])
+            if i==0:
+                sys.stdout.write(f'\t\t INSERT STATS PRINTOUT HERE')
+    
 
-# test=Display({'player' : 'balls'})
+if TESTMODE == True:
+    test=Display({'player' : 'balls'})
