@@ -6,6 +6,7 @@ class Player:
         self.location = None
         self.inventory = {'food': 10}  # Starting with 10 units of food
         self.hunger = 0
+        self.exhaustion = 0
         self.strength = strength
         self.dexterity = dexterity
         self.intelligence = intelligence
@@ -22,6 +23,12 @@ class Player:
             print("Not enough food! You should find some.")
             return False
 
+
+    def player_rest(self):
+        print("You sleep and recover some energy")
+
+        self.exhaustion -= 1
+
     def add_food(self, amount):
         self.inventory['food'] += amount
 
@@ -31,18 +38,33 @@ class Player:
 
 
 class Location:
-    def __init__(self, name, description, town=False):
+    def __init__(self, name, description, town=False, buildings=[]):
         self.name = name
         self.description = description
         self.connections = {}  # Connection format: {direction: (connected_location, travel_days)}
         self.town = town
-        
+        self.buildings = buildings
+
+
+
     def add_connection(self, direction, connected_location, travel_days,encounter_chance=0,travel_description="You travel through the wilderness.",encounters=[]):
         self.connections[direction] = (connected_location, travel_days,encounter_chance,travel_description,encounters)
 
     def __str__(self):
         return f"{self.name}\n{self.description}"
 
+
+
+
+
+class Building:
+    def __init__(self, name, building_type, description, npcs=[], goods=[], rumors=[]):
+        self.name = name
+        self.building_type = building_type
+        self.description = description
+        self.npcs = npcs
+        self.goods = goods
+        self.rumors = rumors
 
 
 
@@ -73,7 +95,8 @@ def display_gui(player):
 
     print("------------------------------")
     player.display_inventory()
-    print(f"Hunger: {player.hunger}/10\n")
+    print(f"Hunger: {player.hunger}/10")
+    print(f"Exhaustion: {player.exhaustion}/10")
 
 
 
@@ -123,13 +146,6 @@ def intro():
 
 
 
-def command_input(command):
-
-    match command.lower():
-
-        case "camp":
-
-            camp()
 
 
 
@@ -156,9 +172,7 @@ def encounter(chance,encounters):
     print("As you travel along the road.")
     if(random.randint(0,100) < chance):
         npc = encounters[random.randint(0,len(encounters)-1)]
-        print("You encounter a " + npc)
-        input("What do you do?: ")
-    else:
+        print("You encounter ea " + npc)
         input("What do you do?: ")
 
 
@@ -169,27 +183,56 @@ def travel(num_days, player, encounter_chance, travel_description,encounters):
     # Simulate multiple days of travel in the wilderness
     for day_count in range(1, num_days + 1):
         print(f"Day {day_count}: " + travel_description)
+
         encounter(encounter_chance,encounters)
-        camp(player, day_count)
+
+
+
+
+
+        #Effects of Travel
+        player.hunger += 1
+        player.exhaustion += 1
+
+
+        command = ''
+
+        while(command != "travel"):
+            command = input("What do you wish to do?: ").lower()
+            if(command == "camp"):
+                camp(player,day_count)
+
+
+
+
+
 
 
 
 def camp(player, day_count):
+
     display_gui(player)
     print("You set up camp for the night around a roaring fire.")
 
     # Camp actions
-    action = input("What do you want to do at camp? (Type 'eat' to consume food, 'continue' to proceed) ").lower()
+    
+    action = ''
 
-    if action == 'eat':
-        food_to_consume = int(input("How many units of food do you want to consume? "))
-        if player.consume_food(food_to_consume):
-            print(f"You consume {food_to_consume} units of food.")
-        else:
-            print("Not enough food! You should find some.")
+    while(action != "continue"):
 
-    # Increase hunger over time
-    player.hunger += day_count
+        action = input("What do you want to do at camp? (Type 'eat' to consume food, 'continue' to proceed) ").lower()
+        
+        if action == 'eat':
+            food_to_consume = int(input("How many units of food do you want to consume? "))
+            if player.consume_food(food_to_consume):
+                print(f"You consume {food_to_consume} units of food.")
+            else:
+                print("Not enough food! You should find some.")
+
+        elif action == 'rest':
+            player.player_rest()
+
+
 
 
 
@@ -224,7 +267,7 @@ def main():
             
             print(f"You have arrived at {current_location.name}. It took {travel_days} days.")
             
-            if(player.lower.town):
+            if(player.location.town):
                 town(player.location)
         
         else:
