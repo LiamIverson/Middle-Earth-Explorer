@@ -1,11 +1,14 @@
 import os, random
 
 class Player:
-    def __init__(self, name):
+    def __init__(self, name, strength, dexterity, intelligence):
         self.name = name
         self.location = None
         self.inventory = {'food': 10}  # Starting with 10 units of food
         self.hunger = 0
+        self.strength = strength
+        self.dexterity = dexterity
+        self.intelligence = intelligence
 
     def move(self, new_location):
         self.location = new_location
@@ -42,12 +45,19 @@ class Location:
 
 
 
+
+
 class Wilderness(Location):
     def __init__(self):
         super().__init__("Wilderness", "An expansive and untamed wilderness.")
 
+
+
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
+
+
+
 
 def display_gui(player):
     clear_screen()
@@ -65,15 +75,72 @@ def display_gui(player):
     player.display_inventory()
     print(f"Hunger: {player.hunger}/10\n")
 
+
+
+
 def intro():
+    
+
+    characterCreated = False
+
+    statsSelected = False
+
     print("Welcome to Middle-earth Adventure!")
-    player_name = input("What is your name? ")
-    player = Player(player_name)
+    
+
+    while not characterCreated:
+        
+        player_name = input("What is your name? ")
+        
+        while(not statsSelected):
+            
+
+            clear_screen()
+            strength = random.randint(3,18)
+            intelligence = random.randint(3,18)
+            dexterity = random.randint(3,18)
+
+            print("Your current stats are: ")
+
+            print("Strength: " + str(strength))
+            print("Intellgience: "+ str(intelligence))
+            print("Dexterity: " + str(dexterity))
+
+
+            choice = input("Do you accept?").lower()
+            
+            if(choice == "yes"):
+                statsSelected = True
+        
+        player = Player(player_name, strength, dexterity, intelligence)
+        characterCreated = True
+    
+
     return player
 
+
+
+
+
+
+def command_input(command):
+
+    match command.lower():
+
+        case "camp":
+
+            camp()
+
+        case "shop":
+
+
+
 def create_world():
+    
     bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
+    
     buck_land = Location("Buckland", "Home of the Brandybucks and Brandyhall. Here is a near small country bordering the Old Forest")
+    
     # Define connections between locations with travel days
     bag_end.add_connection("east", buck_land, 3,50, "You travel East through the rolling hills of the Shire, encountering small woods and winding creeks.", ['Hobbit'])
 
