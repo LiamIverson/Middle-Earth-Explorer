@@ -2,4 +2,4 @@
 
 
 
-ASCI Based text adventure.
+ASCII Based text adventure.
