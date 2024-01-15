@@ -133,6 +133,12 @@ def command_input(command):
 
 
 
+
+def town(location):
+    pass
+
+
+
 def create_world():
     
     bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
@@ -209,10 +215,18 @@ def main():
 
         if direction in current_location.connections:
             connected_location, travel_days, encounter_chance, travel_description,encounters = current_location.connections[direction]
+            
             travel(travel_days, player, encounter_chance, travel_description,encounters)  # Simulate multiple days of travel
+            
             current_location = connected_location
+            
             player.location = current_location
+            
             print(f"You have arrived at {current_location.name}. It took {travel_days} days.")
+            
+            if(player.lower.town):
+                town(player.location)
+        
         else:
             print("You can't go that way.")
 
