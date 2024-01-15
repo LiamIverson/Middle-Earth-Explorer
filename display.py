@@ -53,12 +53,17 @@ class Display:
         res = AsciiArt.from_image(path)
         numConsoleLines = TEST_NUM_COLUMNS
         ascii_data = res.to_ascii(columns=numConsoleLines, monochrome=True)
+
+        ascii_lines = ascii_data.split('\n')
         
         # Graphics writer function
-        for i in range(int(round(len(ascii_data)/numConsoleLines))):
-            sys.stdout.write(ascii_data[i*numConsoleLines:(i+1)*numConsoleLines])
-            if i==0:
-                sys.stdout.write(f'\t\t INSERT STATS PRINTOUT HERE')
+        for i in range(len(ascii_lines)):
+            
+            if i==1:
+                print(ascii_lines[i],end='')
+                print(f'\t\t INSERT STATS PRINTOUT HERE')
+            else:
+                print(ascii_lines[i])
     
 
 if TESTMODE == True:
