@@ -131,8 +131,6 @@ def command_input(command):
 
             camp()
 
-        case "shop":
-
 
 
 def create_world():
