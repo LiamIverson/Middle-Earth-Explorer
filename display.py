@@ -1,5 +1,5 @@
 import os
-import sys
+import art
 from ascii_magic import AsciiArt
 
 TESTMODE = False
@@ -23,10 +23,12 @@ class Display:
 
     def display_gui(self, player):
         self.clear_screen()
-        print("##############################".center(CENTER_ALIGN_PADDING))
-        print("#      Middle-earth Game     #".center(CENTER_ALIGN_PADDING),end='')
-        print("PLAYER STATS")
-        print("##############################".center(CENTER_ALIGN_PADDING))
+        Title = art.text2art("Middle Earth Game")
+        print(Title)
+        # print("##############################".center(CENTER_ALIGN_PADDING))
+        # print("#      Middle-earth Game     #".center(CENTER_ALIGN_PADDING),end='')
+        # print("PLAYER STATS")
+        # print("##############################".center(CENTER_ALIGN_PADDING))
 
         self.display_resource(TEST_RES_PATH, player)
 
@@ -58,7 +60,7 @@ class Display:
         """
         res = AsciiArt.from_image(path)
         numConsoleLines = TEST_NUM_COLUMNS
-        ascii_data = res.to_ascii(columns=numConsoleLines, monochrome=True)
+        ascii_data = res.to_ascii(columns=numConsoleLines, monochrome=True, width_ratio=5.)
 
         ascii_lines = ascii_data.split('\n')
         
