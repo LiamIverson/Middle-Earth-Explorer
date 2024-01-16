@@ -23,16 +23,18 @@ class Display:
 
     def display_gui(self, player):
         self.clear_screen()
-        Title = art.text2art("Middle Earth Game")
-        print(Title)
-        # print("##############################".center(CENTER_ALIGN_PADDING))
-        # print("#      Middle-earth Game     #".center(CENTER_ALIGN_PADDING),end='')
-        # print("PLAYER STATS")
-        # print("##############################".center(CENTER_ALIGN_PADDING))
-
+        Title = art.text2art("MIDDLE EARTH GAME", font='small')
+        print(Title, end='')
+        print('########################################################\
+###############################################################')
+        print('\t#\t\t\033[1mPLAYER STATS\033[0;0m'.rjust(108))    # Todo: figure out deterministic relationship for where to put this
+        
         self.display_resource(TEST_RES_PATH, player)
 
-        print('\n')
+        print('\t\t\t\t\t\t\t\t\t\t\t#\n',end='')
+        print('\t\t\t\t\t\t\t\t\t\t\t#')
+        print('########################################################\
+###############################################################')
 
         # if player.location:
         #     print(f"Location: {player.location.name}")
@@ -60,7 +62,7 @@ class Display:
         """
         res = AsciiArt.from_image(path)
         numConsoleLines = TEST_NUM_COLUMNS
-        ascii_data = res.to_ascii(columns=numConsoleLines, monochrome=True, width_ratio=5.)
+        ascii_data = res.to_ascii(columns=numConsoleLines, monochrome=True, width_ratio=3.)
 
         ascii_lines = ascii_data.split('\n')
         
@@ -77,17 +79,18 @@ class Display:
             # dexterity
             # intelligence
             if i >= numAttributes:
-                print(ascii_lines[i])
+                print(ascii_lines[i], end='')
+                print('\t#')
             else:
                 print(ascii_lines[i],end='')
             if i==0:
-                print(f'\t\tName: {player.name}')
+                print(f'\t#\tName: {player.name}')
             elif i==1:
-                print(f'\t\tLocation: {player.location}')
+                print(f'\t#\tLocation: {player.location}')
             elif i==2:
-                print(f'\t\tInventory: {player.inventory}')
+                print(f'\t#\tInventory: {player.inventory}')
             elif i==3:
-                print(f'\t\tHunger: {player.hunger}')
+                print(f'\t#\tHunger: {player.hunger}')
 
             # elif i==4:
             #     print(ascii_lines[i],end='')
@@ -101,9 +104,6 @@ class Display:
             # elif i==7:
             #     print(ascii_lines[i],end='')
             #     print(f'\t\tIntelligence: {player.intelligence}')
-            else:
-                print(ascii_lines[i])
-    
 
 if TESTMODE == True:
     test=Display({'player' : 'balls'})
