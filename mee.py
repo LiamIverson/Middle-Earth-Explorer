@@ -1,4 +1,5 @@
 import os, random
+from display import Display as disp
 
 class Player:
     def __init__(self, name, strength, dexterity, intelligence):
@@ -152,33 +153,6 @@ class Wilderness(Location):
         super().__init__("Wilderness", "An expansive and untamed wilderness.")
 
 
-
-def clear_screen():
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-
-
-
-def display_gui(player):
-    clear_screen()
-    print("##############################")
-    print("#      Middle-earth Game     #")
-    print("##############################\n")
-    print(f"Player: {player.name}")
-
-    if player.location:
-        print(f"Location: {player.location.name}")
-    else:
-        print("Location: Unknown")
-
-    print("------------------------------")
-    player.display_inventory()
-    print(f"Hunger: {player.hunger}/10")
-    print(f"Exhaustion: {player.exhaustion}/10")
-
-
-
-
 def intro():
     
 
@@ -289,8 +263,7 @@ def travel(num_days, player, encounter_chance, travel_description,encounters):
 
 
 def camp(player, day_count):
-
-    display_gui(player)
+    disp({'player': player})
     print("You set up camp for the night around a roaring fire.")
 
     # Camp actions
@@ -320,7 +293,7 @@ def main():
     current_location = create_world()
     player.location = current_location
     while True:
-        display_gui(player)
+        disp({'player': player})
         print("\n" + str(current_location))
 
 
