@@ -39,12 +39,13 @@ class Player:
 
 
 class Location:
-    def __init__(self, name, description, town=False, buildings=[]):
+    def __init__(self, name, description, is_town=False, buildings=[], town=[] ):
         self.name = name
         self.description = description
         self.connections = {}  # Connection format: {direction: (connected_location, travel_days)}
-        self.town = town
+        self.is_town = is_town
         self.buildings = buildings
+        self.town = town
 
 
 
@@ -145,8 +146,24 @@ class Building:
 
 
 
+class Town:
 
 
+    def __init__(self, Location, name, buildings, npcs):
+        self.location = Location
+        self.name = name
+        self.buildings = buildings
+        self.nps = npcs
+
+
+
+    def enter_town():
+        print("You enter the town of " + self.name)
+        print("The town contains these buildings " + self.buildings)
+
+
+    def add_building(building):
+        self.buildings.append(building)
 
 class Wilderness(Location):
     def __init__(self):
@@ -168,9 +185,6 @@ def intro():
         player_name = input("What is your name? ")
         
         while(not statsSelected):
-            
-
-            clear_screen()
             strength = random.randint(3,18)
             intelligence = random.randint(3,18)
             dexterity = random.randint(3,18)
@@ -189,6 +203,7 @@ def intro():
         
         player = Player(player_name, strength, dexterity, intelligence)
         characterCreated = True
+        disp({'player': player})
     
 
     return player
@@ -212,16 +227,21 @@ def create_world():
 
     bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
     
-    buck_land = Location("Buckland", "Home of the Brandybucks and Brandyhall. Here is a near small country bordering the Old Forest", town=True)
+
+    inn = Building("Golden Perch", "Inn","A fine Inn eh")
+    brandy_hall = Town("Brandyhall", "A fine town populated by the brandybucks", buildings=[inn], npcs=[])
+    buck_land = Location("Buckland", "Home of the Brandybucks and Brandyhall. Here is a near small country bordering the Old Forest", is_town=True, town=brandy_hall)
     
-    # Define connections between locations with travel days
+
+    # Define connectiondi between locations with travel days
     bag_end.add_connection("east", buck_land, 3,100, "You travel East through the rolling hills of the Shire, encountering small woods and winding creeks.", [npc_dave])
 
     return bag_end  # Returning the starting location
 
 
 
-def encounter(chance,encounters):
+def encounter(chance,encounters,player):
+    disp({'player': player})
     print("As you travel along the road.")
     if(random.randint(0,100) < chance):
         npc = encounters[random.randint(0,len(encounters)-1)]
@@ -237,7 +257,7 @@ def travel(num_days, player, encounter_chance, travel_description,encounters):
     for day_count in range(1, num_days + 1):
         print(f"Day {day_count}: " + travel_description)
 
-        encounter(encounter_chance,encounters)
+        encounter(encounter_chance,encounters, player)
 
 
 
