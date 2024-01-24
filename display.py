@@ -28,9 +28,8 @@ class Display:
         print('########################################################\
 ###############################################################')
         print('\t#\t\t\033[1mPLAYER STATS\033[0;0m'.rjust(108))    # Todo: figure out deterministic relationship for where to put this
-        
-        self.display_resource(TEST_RES_PATH, player)
 
+        self.display_resource(TEST_RES_PATH, player)
         print('\t\t\t\t\t\t\t\t\t\t\t#\n',end='')
         print('\t\t\t\t\t\t\t\t\t\t\t#')
         print('########################################################\
@@ -65,7 +64,7 @@ class Display:
         ascii_data = res.to_ascii(columns=numConsoleLines, monochrome=True, width_ratio=3.)
 
         ascii_lines = ascii_data.split('\n')
-        
+
         # Graphics writer function
         numAttributes = TEST_NUM_PLAYER_ATTRIB
         for i in range(len(ascii_lines)):
@@ -86,7 +85,7 @@ class Display:
             if i==0:
                 print(f'\t#\tName: {player.name}')
             elif i==1:
-                print(f'\t#\tLocation: {player.location}')
+                print(f'\t#\tLocation: {player.location.name}')
             elif i==2:
                 print(f'\t#\tInventory: {player.inventory}')
             elif i==3:

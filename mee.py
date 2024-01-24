@@ -73,7 +73,7 @@ class NPC:
         self.strength = strength
         self.dexterity = dexterity
         self.intelligence = intelligence
-        self.npc_type = npc_type    
+        self.npc_type = npc_type
         self.hostile = hostile
         self.dialog =  dialog
         self.rumors = rumors
@@ -171,19 +171,19 @@ class Wilderness(Location):
 
 
 def intro():
-    
+
 
     characterCreated = False
 
     statsSelected = False
 
     print("Welcome to Middle-earth Adventure!")
-    
+
 
     while not characterCreated:
-        
+
         player_name = input("What is your name? ")
-        
+
         while(not statsSelected):
             strength = random.randint(3,18)
             intelligence = random.randint(3,18)
@@ -197,14 +197,14 @@ def intro():
 
 
             choice = input("Do you accept?").lower()
-            
+
             if(choice == "yes"):
                 statsSelected = True
-        
+
         player = Player(player_name, strength, dexterity, intelligence)
         characterCreated = True
-        disp({'player': player})
-    
+        #disp({'player': player})
+
 
     return player
 
@@ -217,7 +217,7 @@ def intro():
 
 
 def create_world():
-    
+
 
 
 
@@ -226,15 +226,15 @@ def create_world():
 
 
     bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
-    
+
 
     inn = Building("Golden Perch", "Inn","A fine Inn eh")
     brandy_hall = Town("Brandyhall", "A fine town populated by the brandybucks", buildings=[inn], npcs=[])
     buck_land = Location("Buckland", "Home of the Brandybucks and Brandyhall. Here is a near small country bordering the Old Forest", is_town=True, town=brandy_hall)
-    
+
 
     # Define connectiondi between locations with travel days
-    bag_end.add_connection("east", buck_land, 3,100, "You travel East through the rolling hills of the Shire, encountering small woods and winding creeks.", [npc_dave])
+    bag_end.add_connection("east", buck_land, 3,100, "You travel East through the rolling hills of the Shire, encountering small woods and winding creeks.", [])
 
     return bag_end  # Returning the starting location
 
@@ -244,9 +244,10 @@ def encounter(chance,encounters,player):
     disp({'player': player})
     print("As you travel along the road.")
     if(random.randint(0,100) < chance):
-        npc = encounters[random.randint(0,len(encounters)-1)]
-        npc.interaction()
-        input("What do you do?: ")
+        if(len(encounters) > 0):
+            npc = encounters[random.randint(0,len(encounters)-1)]
+            npc.interaction()
+            input("What do you do?: ")
 
 
 
@@ -287,13 +288,13 @@ def camp(player, day_count):
     print("You set up camp for the night around a roaring fire.")
 
     # Camp actions
-    
+
     action = ''
 
     while(action != "continue"):
 
         action = input("What do you want to do at camp? (Type 'eat' to consume food, 'continue' to proceed) ").lower()
-        
+
         if action == 'eat':
             food_to_consume = int(input("How many units of food do you want to consume? "))
             if player.consume_food(food_to_consume):
@@ -321,12 +322,12 @@ def main():
         directions_and_days = [f"{direction} ({days} days)" for direction, (location, days,encounter_chance,travel_description,encounters) in current_location.connections.items()]
         directions = ", ".join(directions_and_days)
         print(f"Available directions: {directions}")
-        player.display_inventory()
+        #player.display_inventory()
 
 
         if(player.location.town):
             player.location.in_town()
-        
+
 
         direction = input("Where do you want to go? (Type 'quit' to exit) ").lower()
 
@@ -336,16 +337,16 @@ def main():
 
         if direction in current_location.connections:
             connected_location, travel_days, encounter_chance, travel_description,encounters = current_location.connections[direction]
-            
+
             travel(travel_days, player, encounter_chance, travel_description,encounters)  # Simulate multiple days of travel
-            
+
             current_location = connected_location
-            
+
             player.location = current_location
-            
+
             print(f"You have arrived at {current_location.name}. It took {travel_days} days.")
-        
-        
+
+
         else:
             print("You can't go that way.")
 
