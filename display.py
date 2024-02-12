@@ -2,8 +2,6 @@ import os
 import art
 from ascii_magic import AsciiArt
 
-TESTMODE = False
-
 TEST_NUM_COLUMNS = 80
 TEST_RES_PATH = "resources\\ExampleResource.png"
 TEST_NUM_PLAYER_ATTRIB = 4
@@ -12,11 +10,11 @@ CENTER_ALIGN_PADDING  = 100
 
 class Display:
     def __init__(self, params: dict):
-        if TESTMODE == False:
-            self.player_stats = params['player']
-            self.display_gui(self.player_stats)
-        else:
-            self.display_resource(TEST_RES_PATH)
+        if params == {}:
+            print('Please pass a proper set of parameters to display API\nMake sure to update player stats before calling')
+            return
+        self.player_stats = params['player']
+        self.display_gui(self.player_stats)
 
     def clear_screen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -66,7 +64,10 @@ class Display:
         ascii_lines = ascii_data.split('\n')
 
         # Graphics writer function
-        numAttributes = TEST_NUM_PLAYER_ATTRIB
+        numAttributes = len(player_stats)
+        stats = list(player_stats)
+        stat_vals = list(player_stats.values())
+        
         for i in range(len(ascii_lines)):
             # Print all player attributes
             # name
@@ -77,32 +78,9 @@ class Display:
             # strength
             # dexterity
             # intelligence
-            if i >= numAttributes:
-                print(ascii_lines[i], end='')
+            print(ascii_lines[i], end='')
+
+            if i >= numAttributes:  # Handle terminating character on lines we don't print stats on
                 print('\t#')
             else:
-                print(ascii_lines[i],end='')
-            if i==0:
-                print(f'\t#\tName: {player_stats["name"]}')
-            elif i==1:
-                print(f'\t#\tLocation: {player_stats["loc"]}')
-            elif i==2:
-                print(f'\t#\tInventory: {player_stats["inv"]}')
-            elif i==3:
-                print(f'\t#\tHunger: {player_stats["hunger"]}')
-
-            # elif i==4:
-            #     print(ascii_lines[i],end='')
-            #     print(f'\t\tExhaustion: {player.exhaustion}')
-            # elif i==5:
-            #     print(ascii_lines[i],end='')
-            #     print(f'\t\tStrength: {player.strength}')
-            # elif i==6:
-            #     print(ascii_lines[i],end='')
-            #     print(f'\t\tDexterity: {player.dexterity}')
-            # elif i==7:
-            #     print(ascii_lines[i],end='')
-            #     print(f'\t\tIntelligence: {player.intelligence}')
-
-if TESTMODE == True:
-    test=Display({'player' : 'balls'})
+                print(f'\t#\t{stats[i]}: {stat_vals[i]}')

@@ -11,7 +11,7 @@ class Player:
         self.strength = strength
         self.dexterity = dexterity
         self.intelligence = intelligence
-        self.display_stats = {'name': self.name, 'loc': self.location, 'inv': self.inventory, 'hunger': self.hunger}
+        self.display_stats = {}
 
     def move(self, new_location):
         self.location = new_location
@@ -36,6 +36,13 @@ class Player:
 
     def display_inventory(self):
         print(f"Inventory: Food - {self.inventory['food']} units")
+
+    def update_stats(self):
+        self.display_stats['Name'] = self.name
+        if self.location != None:
+            self.display_stats['Location'] = self.location.name
+        self.display_stats['Inventory'] = self.inventory
+        self.display_stats['Hunger'] = self.hunger
 
 
 
@@ -204,7 +211,6 @@ def intro():
 
         player = Player(player_name, strength, dexterity, intelligence)
         characterCreated = True
-        #disp({'player': player})
 
 
     return player
@@ -242,6 +248,7 @@ def create_world():
 
 
 def encounter(chance,encounters,player):
+    player.update_stats()
     disp({'player': player.display_stats})        # ToDo: Don't pass 'player' here, pass stats object
     print("As you travel along the road.")
     if(random.randint(0,100) < chance):
@@ -285,6 +292,7 @@ def travel(num_days, player, encounter_chance, travel_description,encounters):
 
 
 def camp(player, day_count):
+    player.update_stats()
     disp({'player': player.display_stats})        # ToDo: Don't pass 'player' here, pass stats object
     print("You set up camp for the night around a roaring fire.")
 
@@ -315,6 +323,7 @@ def main():
     current_location = create_world()
     player.location = current_location
     while True:
+        player.update_stats()
         disp({'player': player.display_stats})        # ToDo: Don't pass 'player' here, pass stats object
         print("\n" + str(current_location))
 
