@@ -13,15 +13,15 @@ CENTER_ALIGN_PADDING  = 100
 class Display:
     def __init__(self, params: dict):
         if TESTMODE == False:
-            self.player = params['player']
-            self.display_gui(self.player)
+            self.player_stats = params['player']
+            self.display_gui(self.player_stats)
         else:
             self.display_resource(TEST_RES_PATH)
 
     def clear_screen(self):
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    def display_gui(self, player):
+    def display_gui(self, player_stats):
         self.clear_screen()
         Title = art.text2art("MIDDLE EARTH GAME", font='small')
         print(Title, end='')
@@ -29,7 +29,7 @@ class Display:
 ###############################################################')
         print('\t#\t\t\033[1mPLAYER STATS\033[0;0m'.rjust(108))    # Todo: figure out deterministic relationship for where to put this
 
-        self.display_resource(TEST_RES_PATH, player)
+        self.display_resource(TEST_RES_PATH, player_stats)
         print('\t\t\t\t\t\t\t\t\t\t\t#\n',end='')
         print('\t\t\t\t\t\t\t\t\t\t\t#')
         print('########################################################\
@@ -45,7 +45,7 @@ class Display:
         # print(f"Hunger: {player.hunger}/10\n")
 
 
-    def display_resource(self, path: str, player):
+    def display_resource(self, path: str, player_stats):
         """Converts and displays resource as ASCII art
         Also needs to display everything to the right
         of the ASCII art
@@ -83,13 +83,13 @@ class Display:
             else:
                 print(ascii_lines[i],end='')
             if i==0:
-                print(f'\t#\tName: {player.name}')
+                print(f'\t#\tName: {player_stats["name"]}')
             elif i==1:
-                print(f'\t#\tLocation: {player.location.name}')
+                print(f'\t#\tLocation: {player_stats["loc"]}')
             elif i==2:
-                print(f'\t#\tInventory: {player.inventory}')
+                print(f'\t#\tInventory: {player_stats["inv"]}')
             elif i==3:
-                print(f'\t#\tHunger: {player.hunger}')
+                print(f'\t#\tHunger: {player_stats["hunger"]}')
 
             # elif i==4:
             #     print(ascii_lines[i],end='')
