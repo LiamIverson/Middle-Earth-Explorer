@@ -69,15 +69,7 @@ class Display:
         stat_vals = list(player_stats.values())
         
         for i in range(len(ascii_lines)):
-            # Print all player attributes
-            # name
-            # location
-            # inventory
-            # hunger
-            # exhaustion
-            # strength
-            # dexterity
-            # intelligence
+            # Print all player attributes in player_stats alongside ASCII art
             print(ascii_lines[i], end='')
 
             if i >= numAttributes:  # Handle terminating character on lines we don't print stats on
