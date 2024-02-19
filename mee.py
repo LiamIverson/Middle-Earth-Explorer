@@ -1,173 +1,9 @@
 import os, random
 from display import Display as disp
-
-class Player:
-    def __init__(self, name, strength, dexterity, intelligence):
-        self.name = name
-        self.location = None
-        self.inventory = {'food': 10}  # Starting with 10 units of food
-        self.hunger = 0
-        self.exhaustion = 0
-        self.strength = strength
-        self.dexterity = dexterity
-        self.intelligence = intelligence
-
-    def move(self, new_location):
-        self.location = new_location
-
-    def consume_food(self, amount):
-        if self.inventory['food'] >= amount:
-            self.inventory['food'] -= amount
-            self.hunger -= amount  # Decrease hunger when consuming food
-            return True
-        else:
-            print("Not enough food! You should find some.")
-            return False
-
-
-    def player_rest(self):
-        print("You sleep and recover some energy")
-
-        self.exhaustion -= 1
-
-    def add_food(self, amount):
-        self.inventory['food'] += amount
-
-    def display_inventory(self):
-        print(f"Inventory: Food - {self.inventory['food']} units")
-
-
-
-class Location:
-    def __init__(self, name, description, is_town=False, buildings=[], town=[] ):
-        self.name = name
-        self.description = description
-        self.connections = {}  # Connection format: {direction: (connected_location, travel_days)}
-        self.is_town = is_town
-        self.buildings = buildings
-        self.town = town
-
-
-
-    def add_connection(self, direction, connected_location, travel_days,encounter_chance=0,travel_description="You travel through the wilderness.",encounters=[]):
-        self.connections[direction] = (connected_location, travel_days,encounter_chance,travel_description,encounters)
-
-    def __str__(self):
-        return f"{self.name}\n{self.description}"
-
-
-    def in_town(self):
-        print("Within the town there are these buildings.")
-        print(self.buildings)
-        input()
-
-
-
-
-
-class NPC:
-    def __init__(self, name, description, dialog, strength,dexterity, intelligence, npc_type, hostile, room_rate = 0,rumors=[], goods = [], dialog_trees = []):
-
-        self.name = name
-        self.description = description
-        self.strength = strength
-        self.dexterity = dexterity
-        self.intelligence = intelligence
-        self.npc_type = npc_type
-        self.hostile = hostile
-        self.dialog =  dialog
-        self.rumors = rumors
-        self.room_rate = room_rate
-        self.goods = goods
-        self.dialog_trees = dialog_trees
-
-
-    def interaction(self):
-        print(self.description)
-        if(self.hostile):
-            pass
-            #combat
-
-        else:
-            print(self.dialog)
-            if(self.npc_type == "Innkeeper"):
-                inn_keeper()
-            elif(self.npc_type == "Merchant"):
-                merchant()
-            elif(self.npc_type == "Blacksmith"):
-                blacksmith()
-            elif(self.npc_type == "Inn_Patron"):
-                self.patron()
-
-            elif(self.npc_type == "Complex_Character"):
-                self.complex_character(self)
-
-
-
-
-    def inn_keeper(self):
-        pass
-
-    def merchant(self):
-        pass
-
-    def blacksmith(self):
-        pass
-
-    def patron(self):
-        pass
-
-    def complex_character(self):
-        pass
-
-
-
-    #Example of a dialog tree with reward
-    #{"The big apple is over there.":{"type":"charisma","value":15, "reward":{}}}
-
-
-class Building:
-    def __init__(self, name, building_type, description, npcs=[]):
-        self.name = name
-        self.building_type = building_type
-        self.description = description
-        self.npcs = npcs
-
-
-    def enter_building(self):
-        print(description)
-        print("Inside you can see ")
-        print(self.npcs)
-
-        #choice = input("What do you do?").lower()
-        #if(choice == "talk"):
-         #   for i in range(self.npcs):
-          #      print(str(i) + " - " +str(self.npc[i].name))
-
-
-
-class Town:
-
-
-    def __init__(self, Location, name, buildings, npcs):
-        self.location = Location
-        self.name = name
-        self.buildings = buildings
-        self.nps = npcs
-
-
-
-    def enter_town():
-        print("You enter the town of " + self.name)
-        print("The town contains these buildings " + self.buildings)
-
-
-    def add_building(building):
-        self.buildings.append(building)
-
-class Wilderness(Location):
-    def __init__(self):
-        super().__init__("Wilderness", "An expansive and untamed wilderness.")
+from player import Player
+from location import Location, Town, Wilderness
+from npc import NPC
+from building import Building
 
 
 def intro():
@@ -228,14 +64,14 @@ def create_world():
     bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
 
 
-    inn = Building("Golden Perch", "Inn","A fine Inn eh")
+    inn = Building("Golden Perch", "Inn", "A fine Inn eh")
     brandy_hall = Town("Brandyhall", "A fine town populated by the brandybucks", buildings=[inn], npcs=[])
     buck_land = Location("Buckland", "Home of the Brandybucks and Brandyhall. Here is a near small country bordering the Old Forest", is_town=True, town=brandy_hall)
 
 
     # Define connectiondi between locations with travel days
-    bag_end.add_connection("east", buck_land, 3,100, "You travel East through the rolling hills of the Shire, encountering small woods and winding creeks.", [])
-
+    bag_end.add_connection("east", buck_land, 3,0, "You travel East through the rolling hills of the Shire, encountering small woods and winding creeks.", [])
+    buck_land.add_connection("west", bag_end, 3,0, "You travel West over the Brandywine and into the rolling hill land of the shire.", [])
     return bag_end  # Returning the starting location
 
 
@@ -304,6 +140,8 @@ def camp(player, day_count):
 
         elif action == 'rest':
             player.player_rest()
+
+    print("You break camp and continue on your journey.")
 
 
 
