@@ -8,6 +8,7 @@ class Player:
         self.strength = strength
         self.dexterity = dexterity
         self.intelligence = intelligence
+        self.display_stats = {}
 
     def move(self, new_location):
         self.location = new_location
@@ -32,3 +33,10 @@ class Player:
 
     def display_inventory(self):
         print(f"Inventory: Food - {self.inventory['food']} units")
+
+    def update_stats(self):
+        self.display_stats['Name'] = self.name
+        if self.location != None:
+            self.display_stats['Location'] = self.location.name
+        self.display_stats['Inventory'] = self.inventory
+        self.display_stats['Hunger'] = self.hunger
