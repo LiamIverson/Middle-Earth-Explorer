@@ -3,7 +3,7 @@ import pickle
 
 
 from location import Location
-
+from building import Building
 
 location = None
 
@@ -141,7 +141,11 @@ def create_location(stdscr):
                             buildings_input = buildings_input[:-1]
                         else:
                             buildings_input += chr(key)
-                    location.buildings = buildings_input.split(",")
+                    building_names = buildings_input.split(",")
+                    location.buildings = []
+                    for name in building_names:
+                        location.buildings.append(Building(name, "","",[]))  # Assuming Building is the class for building objects with a name and description attribute
+
 
                 elif current_attribute_idx == 4:
                     stdscr.addstr(19, 2, "Enter town (comma-separated list):")
