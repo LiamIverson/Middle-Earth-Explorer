@@ -87,7 +87,7 @@ def create_world():
     for location in all_locations:
         game_map.append(location)
     
-    return game_map[2]  # Returning the starting location
+    return game_map[0]  # Returning the starting location
 
 
 

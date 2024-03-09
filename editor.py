@@ -207,7 +207,7 @@ def create_location(stdscr):
                     # Display a menu to select a location
                     current_y = 22
                     selected_location = None
-                    selected_location = None
+                 
                     prev_y = None  # Initialize prev_y
                     while True:
                         # Clear the previous y position if it's set
@@ -262,7 +262,7 @@ def create_location(stdscr):
                     stdscr.refresh()
                     travel_description_input = ""
                     while True:
-                        stdscr.addstr(24, 2, travel_description_input)
+                        stdscr.addstr(26, 2, travel_description_input)
                         stdscr.refresh()
                         key = stdscr.getch()
                         if key == curses.KEY_ENTER or key in [10, 13]:
@@ -271,7 +271,7 @@ def create_location(stdscr):
                             travel_description_input = travel_description_input[:-1]
                         else:
                             travel_description_input += chr(key)
-                        stdscr.addstr(24, 2, travel_description_input.ljust(60))  # Display input text
+                        #stdscr.addstr(27, 2, travel_description_input.ljust(60))  # Display input text
                         stdscr.refresh()
 
                     # Assuming you have a method to add connections in your Location class
