@@ -1,6 +1,6 @@
 import curses
 import pickle
-
+import os
 
 from location import Location
 from building import Building
@@ -9,7 +9,7 @@ location = None
 
 
 def save_location(location, filename):
-    with open(filename, 'wb') as file:
+    with open('locations/'+filename, 'wb') as file:
         pickle.dump(location, file)
 
 
@@ -28,6 +28,7 @@ def draw_menu(stdscr, selected_row_idx):
         stdscr.addstr(5, 4, f"Is Town: {location.is_town}")
         stdscr.addstr(6, 4, f"Buildings: {location.buildings}")
         stdscr.addstr(7, 4, f"Town: {location.town}")
+        stdscr.addstr(8, 4, f"Connections: {location.connections}")
     else:
         stdscr.addstr(2, 2, "No location created yet.")
 
@@ -43,6 +44,7 @@ def draw_menu(stdscr, selected_row_idx):
             stdscr.addstr(y, x, item)
 
     stdscr.refresh()
+
 def create_location(stdscr):
     global location
     in_menu = True
@@ -64,10 +66,11 @@ def create_location(stdscr):
         stdscr.addstr(5, 4, f"Is Town: {location.is_town}")
         stdscr.addstr(6, 4, f"Buildings: {location.buildings}")
         stdscr.addstr(7, 4, f"Town: {location.town}")
+        stdscr.addstr(8, 4, f"Connections: {location.connections}")
 
         stdscr.addstr(9, 2, "Select an attribute to edit (Press Enter to confirm):")
 
-        attributes = ["Name", "Description", "Is Town", "Buildings", "Town", "Save", "Exit"]
+        attributes = ["Name", "Description", "Is Town", "Buildings", "Town", "Save", "Connections", "Exit"]
         current_attribute_idx = 0
 
         while True:
@@ -167,7 +170,113 @@ def create_location(stdscr):
                         stdscr.addstr(20, 2, file_name.ljust(20))  # Display input text
                         stdscr.refresh()
                     save_location(location, file_name+".pkl")
+                
                 elif current_attribute_idx == 6:
+                    # Enter functionality to add connections
+                    stdscr.addstr(19, 2, "Enter connection direction (e.g., North, South, East, West):")
+                    stdscr.refresh()
+                    direction_input = ""
+                    while True:
+                        stdscr.addstr(20, 2, direction_input)
+                        stdscr.refresh()
+                        key = stdscr.getch()
+                        if key == curses.KEY_ENTER or key in [10, 13]:
+                            break
+                        elif key == curses.KEY_BACKSPACE:
+                            direction_input = direction_input[:-1]
+                        else:
+                            direction_input += chr(key)
+                        stdscr.addstr(20, 2, direction_input.ljust(60))  # Display input text
+                        stdscr.refresh()
+
+                    stdscr.addstr(21, 2, "Select connected location:")
+                    stdscr.refresh()
+                    # Define the folder where the location files are stored
+                    locations_folder = "locations"
+
+                   # Load all location objects
+                    locations = []
+                    for file_name in os.listdir(locations_folder):
+                        if file_name.endswith('.pkl'):
+                            with open(os.path.join(locations_folder, file_name), 'rb') as file:
+                                location_obj = pickle.load(file)
+                                locations.append(location_obj)
+
+                    # Display a menu to select a location
+                    current_y = 22
+                    selected_location = None
+                    selected_location = None
+                    prev_y = None  # Initialize prev_y
+                    while True:
+                        # Clear the previous y position if it's set
+                        if prev_y is not None:
+                            stdscr.move(prev_y, 2)
+                            stdscr.clrtoeol()
+
+                        # Redraw the list of locations with the selection cursor
+                        for idx, displayed_location in enumerate(locations):
+                            y = 22 + idx
+                            if y == current_y:
+                                stdscr.attron(curses.A_REVERSE)
+                                stdscr.addstr(y, 2, displayed_location.name)
+                                stdscr.attroff(curses.A_REVERSE)
+                            else:
+                                stdscr.addstr(y, 2, displayed_location.name)
+
+                        stdscr.refresh()
+
+                        key = stdscr.getch()
+
+                        if key == curses.KEY_UP and current_y > 22:
+                            prev_y = current_y  # Set prev_y before moving the cursor
+                            current_y -= 1
+                        elif key == curses.KEY_DOWN and current_y < 22 + len(locations) - 1:
+                            prev_y = current_y  # Set prev_y before moving the cursor
+                            current_y += 1
+                        elif key == curses.KEY_ENTER or key in [10, 13]:
+                            selected_location = locations[current_y - 22]
+                            break
+
+                    stdscr.addstr(21, 2, f"Connected location: {selected_location}")
+                    stdscr.refresh()
+
+                    stdscr.addstr(23, 2, "Enter travel days:")
+                    stdscr.refresh()
+                    travel_days_input = ""
+                    while True:
+                        stdscr.addstr(24, 2, travel_days_input)
+                        stdscr.refresh()
+                        key = stdscr.getch()
+                        if key == curses.KEY_ENTER or key in [10, 13]:
+                            break
+                        elif key == curses.KEY_BACKSPACE:
+                            travel_days_input = travel_days_input[:-1]
+                        else:
+                            travel_days_input += chr(key)
+                        stdscr.addstr(24, 2, travel_days_input.ljust(60))  # Display input text
+                        stdscr.refresh()
+
+                    stdscr.addstr(25, 2, "Enter travel description:")
+                    stdscr.refresh()
+                    travel_description_input = ""
+                    while True:
+                        stdscr.addstr(24, 2, travel_description_input)
+                        stdscr.refresh()
+                        key = stdscr.getch()
+                        if key == curses.KEY_ENTER or key in [10, 13]:
+                            break
+                        elif key == curses.KEY_BACKSPACE:
+                            travel_description_input = travel_description_input[:-1]
+                        else:
+                            travel_description_input += chr(key)
+                        stdscr.addstr(24, 2, travel_description_input.ljust(60))  # Display input text
+                        stdscr.refresh()
+
+                    # Assuming you have a method to add connections in your Location class
+                    location.add_connection(direction_input.lower().strip(), selected_location, int(travel_days_input), int(0),travel_description_input)
+
+                    stdscr.clear()
+                elif current_attribute_idx == 7:
                     in_menu = False
 
                 stdscr.clear()
