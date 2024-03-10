@@ -1,4 +1,4 @@
-import os, random
+import os, random, pickle
 from display import Display as disp
 
 from player import Player
@@ -6,6 +6,7 @@ from location import Location, Town, Wilderness
 from npc import NPC
 from building import Building
 
+game_map = []
 def intro():
 
 
@@ -46,7 +47,14 @@ def intro():
 
 
 
-
+def load_locations():
+    locations = []
+    location_files = [f for f in os.listdir("locations") if os.path.isfile(os.path.join("locations", f))]
+    for file_name in location_files:
+        with open(os.path.join("locations", file_name), "rb") as f:
+            location = pickle.load(f)
+            locations.append(location)
+    return locations
 
 
 
@@ -57,21 +65,29 @@ def create_world():
 
 
 
-    npc_dave = NPC("Dave","It is a man named Dave.", "Hello my name is Dave.", 20, 20, 20, "Inn_Patron", False, rumors = ['Davey Jones got a big ol cock.'])
+    # npc_dave = NPC("Dave","It is a man named Dave.", "Hello my name is Dave.", 20, 20, 20, "Inn_Patron", False, rumors = ['Davey Jones got a big ol cock.'])
 
 
-    bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
+    # bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
 
 
-    inn = Building("Golden Perch", "Inn", "A fine Inn eh")
-    brandy_hall = Town("Brandyhall", "A fine town populated by the brandybucks", buildings=[inn], npcs=[])
-    buck_land = Location("Buckland", "Home of the Brandybucks and Brandyhall. Here is a near small country bordering the Old Forest", is_town=True, town=brandy_hall)
+    # inn = Building("Golden Perch", "Inn", "A fine Inn eh")
+    # brandy_hall = Town("Brandyhall", "A fine town populated by the brandybucks", buildings=[inn], npcs=[])
+    # buck_land = Location("Buckland", "Home of the Brandybucks and Brandyhall. Here is a near small country bordering the Old Forest", is_town=True, town=brandy_hall)
 
 
-    # Define connectiondi between locations with travel days
-    bag_end.add_connection("east", buck_land, 3,0, "You travel East through the rolling hills of the Shire, encountering small woods and winding creeks.", [])
-    buck_land.add_connection("west", bag_end, 3,0, "You travel West over the Brandywine and into the rolling hill land of the shire.", [])
-    return bag_end  # Returning the starting location
+    # # Define connectiondi between locations with travel days
+    # bag_end.add_connection("east", buck_land, 3,0, "You travel East through the rolling hills of the Shire, encountering small woods and winding creeks.", [])
+    # buck_land.add_connection("west", bag_end, 3,0, "You travel West over the Brandywine and into the rolling hill land of the shire.", [])
+    
+    # Load all locations from files
+    all_locations = load_locations()
+
+    # Add locations to game map
+    for location in all_locations:
+        game_map.append(location)
+    
+    return game_map[0]  # Returning the starting location
 
 
 
@@ -175,9 +191,12 @@ def main():
             print("Thanks for playing!")
             break
 
+
+        print(current_location.connections)
+        input()
         if direction in current_location.connections:
             connected_location, travel_days, encounter_chance, travel_description,encounters = current_location.connections[direction]
-
+            input()
             travel(travel_days, player, encounter_chance, travel_description,encounters)  # Simulate multiple days of travel
 
             current_location = connected_location
