@@ -1,4 +1,5 @@
 import curses
+import curses.textpad
 import pickle
 import os
 
@@ -261,18 +262,12 @@ def create_location(stdscr):
                     stdscr.addstr(25, 2, "Enter travel description:")
                     stdscr.refresh()
                     travel_description_input = ""
-                    while True:
-                        stdscr.addstr(26, 2, travel_description_input)
-                        stdscr.refresh()
-                        key = stdscr.getch()
-                        if key == curses.KEY_ENTER or key in [10, 13]:
-                            break
-                        elif key == curses.KEY_BACKSPACE:
-                            travel_description_input = travel_description_input[:-1]
-                        else:
-                            travel_description_input += chr(key)
-                        #stdscr.addstr(27, 2, travel_description_input.ljust(60))  # Display input text
-                        stdscr.refresh()
+                    # while True:
+                    stdscr.addstr(26, 2, travel_description_input)
+                    stdscr.refresh()
+                    curses.echo()
+                    travel_description_input = stdscr.getstr(26, 2, 128).decode(encoding="utf-8")
+                    stdscr.refresh()
 
                     # Assuming you have a method to add connections in your Location class
                     location.add_connection(direction_input.lower().strip(), selected_location, int(travel_days_input), int(0),travel_description_input)
