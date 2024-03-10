@@ -19,11 +19,6 @@ def run_dialog_tree(dialog_obj_node):
                 run_dialog_tree(next_node)
 
 
-
-
-with open(YAML_PATH, 'r') as dave_dialog_file:
-    dave_dialog_obj = yaml.safe_load(dave_dialog_file)
-
 #print(dave_dialog_obj)
 #run_dialog_tree(dave_dialog_obj)
 
