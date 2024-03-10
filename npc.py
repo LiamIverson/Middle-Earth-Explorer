@@ -2,7 +2,7 @@ from dialog_tree import run_dialog_tree
 import yaml
 
 class NPC:
-    def __init__(self, name, description, dialog, strength,dexterity, intelligence, npc_type, hostile, room_rate = 0,rumors=[], goods = [], dialog_trees = []):
+    def __init__(self, name: str, description: str, dialog: None, strength: int, dexterity: int, intelligence: int, npc_type: str, hostile: bool, room_rate: int, rumors: list, goods: list, dialog_trees: list):
 
         self.name = name
         self.description = description
