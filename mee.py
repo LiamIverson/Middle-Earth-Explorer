@@ -53,11 +53,10 @@ def intro():
 
 def create_world():
 
+    global npc_dave # Temporarily made dave global so we can encounter with him as a test
 
 
-
-
-    npc_dave = NPC("Dave","It is a man named Dave.", "Hello my name is Dave.", 20, 20, 20, "Inn_Patron", False, rumors = ['Davey Jones got a big ol cock.'])
+    npc_dave = NPC("Dave","It is a man named Dave.", "Hello my name is Dave.", 20, 20, 20, "Inn_Patron", False, rumors = ['Davey Jones got a big ol cock.'], dialog_trees=['resources/dialog/dave.yaml'])
 
 
     bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
@@ -77,11 +76,13 @@ def create_world():
 
 def encounter(chance,encounters,player):
     player.update_stats()
-    disp({'player': player.display_stats})        # ToDo: Don't pass 'player' here, pass stats object
-    print("As you travel along the road.")
-    if(random.randint(0,100) < chance):
+    disp({'player': player.display_stats})        
+    print(f"As you travel along the road.")
+    #if(random.randint(0,100) < chance):
+    if True:    # Force encounter as test case
         if(len(encounters) > 0):
-            npc = encounters[random.randint(0,len(encounters)-1)]
+            #npc = encounters[random.randint(0,len(encounters)-1)]
+            npc = encounters[0] # Pick one static case of an encounter as a test
             npc.interaction()
             input("What do you do?: ")
 
@@ -93,12 +94,8 @@ def travel(num_days, player, encounter_chance, travel_description,encounters):
     # Simulate multiple days of travel in the wilderness
     for day_count in range(1, num_days + 1):
         print(f"Day {day_count}: " + travel_description)
-
+        encounters=[npc_dave]   # We will force an encounter with Dave as a test case
         encounter(encounter_chance,encounters, player)
-
-
-
-
 
         #Effects of Travel
         player.hunger += 1

@@ -1,8 +1,3 @@
-import yaml
-
-YAML_PATH = 'resources/dialog/dave.yaml'
-
-
 def run_dialog_tree(dialog_obj_node):
     
     if type(dialog_obj_node) == type(''):
@@ -30,7 +25,7 @@ with open(YAML_PATH, 'r') as dave_dialog_file:
     dave_dialog_obj = yaml.safe_load(dave_dialog_file)
 
 #print(dave_dialog_obj)
-run_dialog_tree(dave_dialog_obj)
+#run_dialog_tree(dave_dialog_obj)
 
 #print(get_dict_depth(dave_dialog_obj))
 

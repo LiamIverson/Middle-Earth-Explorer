@@ -1,3 +1,6 @@
+from dialog_tree import run_dialog_tree
+import yaml
+
 class NPC:
     def __init__(self, name, description, dialog, strength,dexterity, intelligence, npc_type, hostile, room_rate = 0,rumors=[], goods = [], dialog_trees = []):
 
@@ -17,12 +20,19 @@ class NPC:
 
     def interaction(self):
         print(self.description)
+        
+        # Use the first dialog tree as a test case
+        with open(self.dialog_trees[0], 'r') as interaction_test:
+            dialog_obj_test = yaml.safe_load(interaction_test)
+        run_dialog_tree(dialog_obj_test)
+        
         if(self.hostile):
             pass
             #combat
 
         else:
-            print(self.dialog)
+            
+            #print(self.dialog)
             if(self.npc_type == "Innkeeper"):
                 inn_keeper()
             elif(self.npc_type == "Merchant"):
