@@ -1,0 +1,10 @@
+"Yo I'm Dave!  How are you doing today?":                                       # Dave
+  "I'm doing well, thank you!":                                                 # Player Reply Option A
+    "That's good to hear!  Might you be interested in buying some fine wares?"  # Dave Reply to Player Option A
+  "It's been rough lately, but hanging in there":                               # Player Reply Option B
+    "Sucks to suck; really sounds like a skill issue, buddy":                    # Dave Reply to Player Option B
+      "You bitch!":
+        "K bro"
+  "Go fuck yourself, Dave":                                                     # Player Reply Option C
+    "I'm gonna kick your ass!"                                                  # Dave Reply to Player Option C
+
