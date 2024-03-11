@@ -1,4 +1,4 @@
-from dialog_tree import run_dialog_tree
+from dialog_tree import DialogTree
 import yaml
 
 class NPC:
@@ -24,8 +24,10 @@ class NPC:
         # Use the first dialog tree as a test case
         with open(self.dialog_trees[0], 'r') as interaction_test:
             dialog_obj_test = yaml.safe_load(interaction_test)
-        run_dialog_tree(dialog_obj_test)
-        
+
+        dialog = DialogTree(dialog_obj_test)
+        return dialog.action_val
+
         if(self.hostile):
             pass
             #combat
