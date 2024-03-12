@@ -64,7 +64,7 @@ def create_world():
     global npc_dave # Temporarily made dave global so we can encounter with him as a test
 
 
-    npc_dave = NPC("Dave","It is a man named Dave.", "Hello my name is Dave.", 20, 20, 20, "Inn_Patron", False, rumors = ['Davey Jones got a big ol cock.'], dialog_trees=[os.path.normpath('resources/dialog/dave.yaml')])
+    npc_dave = NPC("Dave","It is a man named Dave.", "Hello my name is Dave.", 20, 20, 20, "Inn_Patron", False, rumors = ['Davey Jones got a big ol cock.'], dialog_trees=[os.path.normpath('resources/dialog/dave.yaml')], room_rate=-1, goods=[])
 
     # bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
 
@@ -98,7 +98,9 @@ def encounter(chance,encounters,player):
         if(len(encounters) > 0):
             #npc = encounters[random.randint(0,len(encounters)-1)]
             npc = encounters[0] # Pick one static case of an encounter as a test
-            npc.interaction()
+            action = npc.interaction()
+            if action == 'ACTION_COMBAT':
+                combat()
             input("What do you do?: ")
 
 
@@ -204,6 +206,9 @@ def main():
 
         else:
             print("You can't go that way.")
+
+def combat():
+    print('We fighting now')
 
 if __name__ == "__main__":
     main()
