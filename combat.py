@@ -1,12 +1,15 @@
 from player import Player
+from display import Display as disp
+
+from time import sleep
 
 ATTACK_PROPORTIONALITY_CONSTANT: float = 0.2    # Weapon-less fight strength will be 20% of fighters strength
 
 class Combat:
-    def __init__(self):
-        self.npc_fighters = []
-        self.player_fighter: Player
-        self.npc_health = []
+    def __init__(self, player: Player, enemies: list):
+        self.npc_fighters = enemies
+        self.player_fighter = player
+        self.npc_health = {}
         self.player_health = 0
         self.npc_weapons = []
         self.player_weapons = []
@@ -32,15 +35,15 @@ class Combat:
         self.fighting = False
         return True
     def __combat_action(self, action, fighter):
-        if action == '1':
+        if action == 1:
             damage = self.__combat_attack(fighter)
             return damage
-        elif action == '2':
+        elif action == 2:
             pass
-        elif action == '3':
+        elif action == 3:
             self.__combat_use_skill()
             pass
-        elif action == '4':
+        elif action == 4:
             self.__combat_run_away()
             pass
         else:
@@ -57,23 +60,24 @@ class Combat:
         player_fighter = self.player_fighter
         
         # Todo: figure out what initial fighter health should be; defaulting to strength for now
-        player_health = player_fighter.strength   
-        enemy_health = {}
+        self.player_health = player_fighter.strength   
         for fighter in fighters:
-            enemy_health[fighter] = fighter.strength
+            self.npc_health[fighter] = fighter.strength
 
         print('Fight has started')
-        while fighting:
+        while self.fighting:
+            sleep(1)
+            disp({'player': self.player_fighter.display_stats}) 
             # Start the enemy turn
             for enemy_fighter in fighters:
-                damage = self.__combat_action(self, 'ATTACK', enemy_fighter)
-                player_health = player_health - damage
-                if player_health < 0:
+                damage = self.__combat_action(1, enemy_fighter)
+                self.player_health = self.player_health - damage
+                if self.player_health < 0:
                     print(f'{player_fighter.name} HAS DIED')
                     return True
                 else:
                     pass
-
+                # disp({'player': self.player_fighter.display_stats}) 
                 # Start the player turn
                 print('COMBAT MENU: What do you want to do?  Enter action number:')
                 print('(1)  ATTACK')
@@ -81,12 +85,14 @@ class Combat:
                 print('(3)  USE SKILL')
                 print('(4)  RUN AWAY')
                 action = int( input() )
-                damage = self.__combat_action(self, action, self.player_fighter)
-                enemy_health[enemy_fighter] = enemy_health[enemy_fighter] - damage
+                damage = self.__combat_action(action, self.player_fighter)
+                self.npc_health[enemy_fighter] = self.npc_health[enemy_fighter] - damage
 
-                if enemy_health[enemy_fighter] < 0:
+                if self.npc_health[enemy_fighter] < 0:
                     print(f'{enemy_fighter.name} HAS DIED')
                     fighters.remove(enemy_fighter)
+                if self.fighting == False:
+                    break
 
         print('Fight has concluded')
         return True

@@ -5,6 +5,7 @@ from player import Player
 from location import Location, Town, Wilderness
 from npc import NPC
 from building import Building
+from combat import Combat
 
 game_map = []
 def intro():
@@ -100,7 +101,8 @@ def encounter(chance,encounters,player):
             npc = encounters[0] # Pick one static case of an encounter as a test
             action = npc.interaction()
             if action == 'ACTION_COMBAT':
-                combat()
+                fight = Combat(player, [npc])
+                fight.fight()
             input("What do you do?: ")
 
 
@@ -206,9 +208,6 @@ def main():
 
         else:
             print("You can't go that way.")
-
-def combat():
-    print('We fighting now')
-
+            
 if __name__ == "__main__":
     main()
