@@ -9,6 +9,8 @@ class Player:
         self.dexterity = dexterity
         self.intelligence = intelligence
         self.display_stats = {}
+        self.overworld_x = 0
+        self.overworld_y = 0
 
     def move(self, new_location):
         self.location = new_location
@@ -40,3 +42,5 @@ class Player:
             self.display_stats['Location'] = self.location.name
         self.display_stats['Inventory'] = self.inventory
         self.display_stats['Hunger'] = self.hunger
+        self.display_stats["Overworld X"] = self.overworld_x
+        self.display_stats["Overworld Y"] = self.overworld_y

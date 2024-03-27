@@ -6,6 +6,7 @@ class Location:
         self.is_town = is_town
         self.buildings = buildings
         self.town = town
+        self.overworld_cords = []
 
 
 

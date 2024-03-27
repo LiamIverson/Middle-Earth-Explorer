@@ -7,6 +7,19 @@ from npc import NPC
 from building import Building
 
 game_map = []
+
+
+
+#The overworld is treated as 2D grid of 100x100 squares for a total of 10k indexes
+#For the time being when a location is loaded in its assigned based on its X/Y coordinates
+#to the correct index for later reference. World movement operates on 2 systems
+#direct node traversal that works with the nested locations and free wondering that lets you travel one day
+#in each grid location
+
+
+over_world = [[0 for _ in range(100)] for _ in range(100)]
+
+
 def intro():
 
 
@@ -54,6 +67,11 @@ def load_locations():
         with open(os.path.join("locations", file_name), "rb") as f:
             location = pickle.load(f)
             locations.append(location)
+            if("overworld_cords" in locations):
+                location_overworld_x = int(locations.overworld_cords[0])
+                location_overworld_y = int(locations.overworld_cords[1])
+                over_world[location_overworld_x][location_overworld_y] = location
+
     return locations
 
 
@@ -87,7 +105,7 @@ def create_world():
     for location in all_locations:
         game_map.append(location)
     
-    return game_map[0]  # Returning the starting location
+    return game_map[1]  # Returning the starting location
 
 
 
@@ -103,12 +121,19 @@ def encounter(chance,encounters,player):
 
 
 
-def travel(num_days, player, encounter_chance, travel_description,encounters):
+def travel(num_days, player, encounter_chance, travel_description,encounters,direction):
     wilderness = Wilderness()
+    direction = direction.lower()
 
+    direction_dict = {'north':(0,1),"south":(0,-1),"west":(-1,0),"east":(1,0)}
+    direction_mod = direction_dict[direction]
+    
     # Simulate multiple days of travel in the wilderness
+
     for day_count in range(1, num_days + 1):
         print(f"Day {day_count}: " + travel_description)
+        player.overworld_x += direction_mod[0]
+        player.overworld_y += direction_mod[1]
 
         encounter(encounter_chance,encounters, player)
 
@@ -175,8 +200,8 @@ def main():
 
 
         # Display available directions and travel time
-        directions_and_days = [f"{direction} ({days} days)" for direction, (location, days,encounter_chance,travel_description,encounters) in current_location.connections.items()]
-        directions = ", ".join(directions_and_days)
+        directions_and_days_and_name = [f"{direction} ({days} days) - {location.name}" for direction, (location, days,encounter_chance,travel_description,encounters) in current_location.connections.items()]
+        directions = ", ".join(directions_and_days_and_name)
         print(f"Available directions: {directions}")
         #player.display_inventory()
 
@@ -197,15 +222,13 @@ def main():
         if direction in current_location.connections:
             connected_location, travel_days, encounter_chance, travel_description,encounters = current_location.connections[direction]
             input()
-            travel(travel_days, player, encounter_chance, travel_description,encounters)  # Simulate multiple days of travel
+            travel(travel_days, player, encounter_chance, travel_description,encounters, direction)  # Simulate multiple days of travel
 
             current_location = connected_location
 
             player.location = current_location
 
             print(f"You have arrived at {current_location.name}. It took {travel_days} days.")
-
-
         else:
             print("You can't go that way.")
 
