@@ -7,6 +7,7 @@ ATTACK_PROPORTIONALITY_CONSTANT: float = 0.2    # Weapon-less fight strength wil
 
 class Combat:
     def __init__(self, player: Player, enemies: list):
+        """! Configure fight attributes """
         self.npc_fighters = enemies
         self.player_fighter = player
         self.npc_health = {}
@@ -14,36 +15,60 @@ class Combat:
         self.npc_weapons = []
         self.player_weapons = []
         self.fighting = True   # Start in a combat state
-    def __combat_attack(self, fighter):
+
+    def __combat_attack(self, fighter: Player) -> float:
         """! Fighter carries out a 'bare-hands' attack
 
-        @param fighter  The NPC/player object of the fighter
+        @param fighter  The player object of the fighter
 
-        @return Number of strength deducted from opponent
+        @return Number of health deducted from opponent
         """
         attack_strength = ATTACK_PROPORTIONALITY_CONSTANT * fighter.strength
         print(f'{fighter.name} dealt {attack_strength} points of damage')
         return attack_strength
-    def __combat_use_inv(self, fighter, weapon):
+    
+    def __combat_use_inv(self, fighter: Player, weapon: str) -> float:
+        """! Fighter carries out an attack with their weapon
+
+        @param fighter  The player object of the fighter
+        @param weapon   The name of currently equipped weapon
+
+        @return Number of health deducted from opponent
+        """
+        # Look up damage of equipped weapon
+        # Deal single hit of damage of equipped weapon
+        # Return weapon attack damage
         print('ERROR: Not implemented')
         pass
+
     def __combat_use_skill(self):
         print('ERROR: Not implemented')
         pass
-    def __combat_run_away(self):
+
+    def __combat_run_away(self) -> bool:
+        """! Fighter runs away and fight ends
+
+        @return Success status
+        """
         print('Running away')
         self.fighting = False
         return True
+    
     def __combat_action(self, action, fighter):
-        if action == 1:
+        """! Process fighter action input from player
+
+        @return Damage or 'False' if no damage/error
+        """
+        if action == 1: # ATTACK
             damage = self.__combat_attack(fighter)
             return damage
-        elif action == 2:
+        elif action == 2:   # USE WEAPON
+            damage = self.__combat_use_inv()
+            return damage
+        elif action == 3:   # USE SKILL
+            damage = self.__combat_use_skill()
             pass
-        elif action == 3:
-            self.__combat_use_skill()
-            pass
-        elif action == 4:
+        elif action == 4:   # RUN AWAY
             self.__combat_run_away()
             pass
         else:
@@ -54,21 +79,27 @@ class Combat:
         return False
     
 
-    def fight(self):
-        fighting = self.fighting
+    def fight(self) -> bool:
+        """! Combat routine
+
+        @return Completion status
+        """
         fighters = self.npc_fighters
         player_fighter = self.player_fighter
         
-        # Todo: figure out what initial fighter health should be; defaulting to strength for now
         self.player_health = player_fighter.health   
         for fighter in fighters:
             self.npc_health[fighter] = fighter.health
 
         print('Fight has started')
         while self.fighting:
+            # Briefly allow display of outcome of previous move
             sleep(1)
+
+            # Update stats & refresh screen
             player_fighter.update_stats()
             disp({'player': self.player_fighter.display_stats}) 
+
             # Start the enemy turn
             for enemy_fighter in fighters:
                 damage = self.__combat_action(1, enemy_fighter)
@@ -79,7 +110,7 @@ class Combat:
                     return True
                 else:
                     pass
-                # disp({'player': self.player_fighter.display_stats}) 
+
                 # Start the player turn
                 print('COMBAT MENU: What do you want to do?  Enter action number:')
                 print('(1)  ATTACK')
