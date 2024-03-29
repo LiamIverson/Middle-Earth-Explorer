@@ -3,6 +3,7 @@ class Player:
         self.name = name
         self.location = None
         self.inventory = {'food': 10}  # Starting with 10 units of food
+        self.health = 20    # Arbitrarily starting with 20 units of health for testing
         self.hunger = 0
         self.exhaustion = 0
         self.strength = strength
@@ -40,3 +41,4 @@ class Player:
             self.display_stats['Location'] = self.location.name
         self.display_stats['Inventory'] = self.inventory
         self.display_stats['Hunger'] = self.hunger
+        self.display_stats['Health'] = self.health

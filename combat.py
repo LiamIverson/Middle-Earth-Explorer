@@ -60,18 +60,20 @@ class Combat:
         player_fighter = self.player_fighter
         
         # Todo: figure out what initial fighter health should be; defaulting to strength for now
-        self.player_health = player_fighter.strength   
+        self.player_health = player_fighter.health   
         for fighter in fighters:
-            self.npc_health[fighter] = fighter.strength
+            self.npc_health[fighter] = fighter.health
 
         print('Fight has started')
         while self.fighting:
             sleep(1)
+            player_fighter.update_stats()
             disp({'player': self.player_fighter.display_stats}) 
             # Start the enemy turn
             for enemy_fighter in fighters:
                 damage = self.__combat_action(1, enemy_fighter)
                 self.player_health = self.player_health - damage
+                player_fighter.health = self.player_health
                 if self.player_health < 0:
                     print(f'{player_fighter.name} HAS DIED')
                     return True
@@ -87,6 +89,7 @@ class Combat:
                 action = int( input() )
                 damage = self.__combat_action(action, self.player_fighter)
                 self.npc_health[enemy_fighter] = self.npc_health[enemy_fighter] - damage
+                fighter.health = self.npc_health[enemy_fighter]
 
                 if self.npc_health[enemy_fighter] < 0:
                     print(f'{enemy_fighter.name} HAS DIED')

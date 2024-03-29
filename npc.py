@@ -16,6 +16,7 @@ class NPC:
         self.room_rate = room_rate
         self.goods = goods
         self.dialog_trees = dialog_trees
+        self.health = 20    # Arbitrarily starting with 20 units of health for testing
 
 
     def interaction(self):
