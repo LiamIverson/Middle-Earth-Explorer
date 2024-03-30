@@ -19,6 +19,7 @@ regions = []
 
 over_world = [[0 for _ in range(100)] for _ in range(100)]
 
+region_types = [0,1,2,3,4]
 
 def intro():
 
@@ -113,10 +114,10 @@ def create_world():
 
 
 def encounter(chance,encounters,player):
-    player.update_stats()
-    disp({'player': player.display_stats})        # ToDo: Don't pass 'player' here, pass stats object
-    print("As you travel along the road.")
     if(random.randint(0,100) < chance):
+        player.update_stats()
+        disp({'player': player.display_stats})        # ToDo: Don't pass 'player' here, pass stats object
+        print("As you travel along the road.")
         if(len(encounters) > 0):
             npc = encounters[random.randint(0,len(encounters)-1)]
             npc.interaction()
@@ -125,19 +126,23 @@ def encounter(chance,encounters,player):
 
 
 def march(player):
-    direction = input("Enter direction of march").lower()
+    direction = input("Enter direction of march: ").lower()
     direction_dict = {'north':(0,1),"south":(0,-1),"west":(-1,0),"east":(1,0)}
     direction_mod = direction_dict[direction]
-    
+
     player.overworld_x = int(player.overworld_x) + direction_mod[0]
     player.overworld_y = int(player.overworld_y) + direction_mod[1]
 
     overworld_location = over_world[player.overworld_x][player.overworld_y]
 
-    if overworld_location in [0,1,2,3,4]:
+    player.hunger += 1
+    player.exhaustion += 1
+    
+    if overworld_location in region_types:
         return regions[overworld_location]
     else:
         return overworld_location
+
 
 def travel(num_days, player, encounter_chance, travel_description,encounters,direction,connected_location):
     wilderness = Wilderness()
@@ -161,7 +166,7 @@ def travel(num_days, player, encounter_chance, travel_description,encounters,dir
         overworld_location = over_world[player.overworld_x][player.overworld_y]
 
         if(overworld_location != 0):
-            if(overworld_location in [1,2,3,4]):
+            if(overworld_location in regions):
                 pass
             else:
                 destination = overworld_location
@@ -237,10 +242,15 @@ def main():
         print(f"Available directions: {directions}")
         #player.display_inventory()
 
-
         if(player.location.town):
             player.location.in_town()
+        else:
+            encounter_chance = current_location.encounter_chance
+            encounters =  current_location.encounters
+            encounter(encounter_chance,encounters, player)
 
+
+        
 
         direction = input("Where do you want to go? (Type 'quit' to exit) ").lower()
 
