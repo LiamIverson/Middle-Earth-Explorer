@@ -2,13 +2,15 @@ class Player:
     def __init__(self, name, strength, dexterity, intelligence):
         self.name = name
         self.location = None
-        self.inventory = {'food': 10}  # Starting with 10 units of food
+        self.inventory = {'food': 10, 'wood':0, 'gold':0, 'left arm':None,"right arm":None, "chest":None,"head":None, "backpack":[]}  # Starting with 10 units of food
         self.hunger = 0
         self.exhaustion = 0
         self.strength = strength
         self.dexterity = dexterity
         self.intelligence = intelligence
         self.display_stats = {}
+        self.overworld_x = 0
+        self.overworld_y = 0
 
     def move(self, new_location):
         self.location = new_location
@@ -40,3 +42,5 @@ class Player:
             self.display_stats['Location'] = self.location.name
         self.display_stats['Inventory'] = self.inventory
         self.display_stats['Hunger'] = self.hunger
+        self.display_stats["Overworld X"] = self.overworld_x
+        self.display_stats["Overworld Y"] = self.overworld_y
