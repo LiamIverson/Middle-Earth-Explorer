@@ -8,7 +8,7 @@ from building import Building
 
 game_map = []
 
-
+regions = []
 
 #The overworld is treated as 2D grid of 100x100 squares for a total of 10k indexes
 #For the time being when a location is loaded in its assigned based on its X/Y coordinates
@@ -67,11 +67,11 @@ def load_locations():
         with open(os.path.join("locations", file_name), "rb") as f:
             location = pickle.load(f)
             locations.append(location)
-            if("overworld_cords" in locations):
-                location_overworld_x = int(locations.overworld_cords[0])
-                location_overworld_y = int(locations.overworld_cords[1])
+            if hasattr(location,"overworld_cords"):
+                location_overworld_x = int(location.overworld_cords[0])
+                location_overworld_y = int(location.overworld_cords[1])
                 over_world[location_overworld_x][location_overworld_y] = location
-
+    input()
     return locations
 
 
@@ -79,6 +79,7 @@ def load_locations():
 
 def create_world():
 
+    global regions
 
 
 
@@ -101,11 +102,13 @@ def create_world():
     # Load all locations from files
     all_locations = load_locations()
 
+    regions = [Location("Plains", "A wide open plain with some smalls hills and tiny clusters of small wood.")]
+ 
     # Add locations to game map
     for location in all_locations:
         game_map.append(location)
     
-    return game_map[1]  # Returning the starting location
+    return game_map[0]  # Returning the starting location
 
 
 
@@ -121,7 +124,22 @@ def encounter(chance,encounters,player):
 
 
 
-def travel(num_days, player, encounter_chance, travel_description,encounters,direction):
+def march(player):
+    direction = input("Enter direction of march").lower()
+    direction_dict = {'north':(0,1),"south":(0,-1),"west":(-1,0),"east":(1,0)}
+    direction_mod = direction_dict[direction]
+    
+    player.overworld_x = int(player.overworld_x) + direction_mod[0]
+    player.overworld_y = int(player.overworld_y) + direction_mod[1]
+
+    overworld_location = over_world[player.overworld_x][player.overworld_y]
+
+    if overworld_location in [0,1,2,3,4]:
+        return regions[overworld_location]
+    else:
+        return overworld_location
+
+def travel(num_days, player, encounter_chance, travel_description,encounters,direction,connected_location):
     wilderness = Wilderness()
     direction = direction.lower()
 
@@ -130,12 +148,24 @@ def travel(num_days, player, encounter_chance, travel_description,encounters,dir
     
     # Simulate multiple days of travel in the wilderness
 
+    destination = connected_location
+
     for day_count in range(1, num_days + 1):
         print(f"Day {day_count}: " + travel_description)
+        
         player.overworld_x += direction_mod[0]
         player.overworld_y += direction_mod[1]
 
         encounter(encounter_chance,encounters, player)
+
+        overworld_location = over_world[player.overworld_x][player.overworld_y]
+
+        if(overworld_location != 0):
+            if(overworld_location in [1,2,3,4]):
+                pass
+            else:
+                destination = overworld_location
+            break
 
 
 
@@ -153,8 +183,7 @@ def travel(num_days, player, encounter_chance, travel_description,encounters,dir
             if(command == "camp"):
                 camp(player,day_count)
 
-
-
+    return destination
 
 
 
@@ -193,6 +222,9 @@ def main():
     player = intro()
     current_location = create_world()
     player.location = current_location
+    player.overworld_x = current_location.overworld_cords[0]
+    player.overworld_y = current_location.overworld_cords[1]
+
     while True:
         player.update_stats()
         disp({'player': player.display_stats})        # ToDo: Don't pass 'player' here, pass stats object
@@ -215,16 +247,15 @@ def main():
         if direction == 'quit':
             print("Thanks for playing!")
             break
-
-
-        print(current_location.connections)
-        input()
-        if direction in current_location.connections:
+        elif direction == 'march':
+            current_location = march(player)
+        elif direction in current_location.connections:
             connected_location, travel_days, encounter_chance, travel_description,encounters = current_location.connections[direction]
-            input()
-            travel(travel_days, player, encounter_chance, travel_description,encounters, direction)  # Simulate multiple days of travel
 
-            current_location = connected_location
+            current_location =  travel(travel_days, player, encounter_chance, travel_description,encounters, direction, connected_location)  # Simulate multiple days of travel
+            #If a location on the overworld is encountered when traveling, the travel function exits and returns that as the current location
+            #Otherwise it will return the connected location as the default after you arrive
+            #Travel should be thought off as 'fast travel'. Marching is more generic travel.
 
             player.location = current_location
 
