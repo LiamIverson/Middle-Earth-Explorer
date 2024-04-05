@@ -15,6 +15,25 @@ class Player:
     def move(self, new_location):
         self.location = new_location
 
+
+
+    def add_item_backpack(self,item):
+        self.inventory["backpack"].append(item)
+
+    def remove_item_backpack(self,item):
+        self.inventory["backpack"].remove(item)
+
+    #Pass item object along with the slot keyword to equip.
+    #Must already be present in inventory
+    def equip_item(self,item,position):
+        if item in self.inventory["backpack"]:
+            self.inventory[position] = item
+    
+    def use_item(self,item):
+        #To Do. Implement logic for use. This might be mostly handled outside the class in contextual functions
+        pass
+
+
     def consume_food(self, amount):
         if self.inventory['food'] >= amount:
             self.inventory['food'] -= amount
