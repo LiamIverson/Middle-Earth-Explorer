@@ -1,11 +1,14 @@
 class Location:
-    def __init__(self, name, description, is_town=False, buildings=[], town=[] ):
+    def __init__(self, name, description, is_town=False, buildings=[], town=[], encounter_chance=0.0,encounters=[],overworld_cords=[0,0]):
         self.name = name
         self.description = description
         self.connections = {}  # Connection format: {direction: (connected_location, travel_days)}
         self.is_town = is_town
         self.buildings = buildings
         self.town = town
+        self.overworld_cords = overworld_cords
+        self.encounter_chance= encounter_chance
+        self.encounters = encounters
 
 
 

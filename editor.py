@@ -1,4 +1,5 @@
 import curses
+import curses.textpad
 import pickle
 import os
 
@@ -31,6 +32,7 @@ def draw_menu(stdscr, selected_row_idx):
         stdscr.addstr(6, 4, f"Buildings: {location.buildings}")
         stdscr.addstr(7, 4, f"Town: {location.town}")
         stdscr.addstr(8, 4, f"Connections: {location.connections}")
+        stdscr.addstr(9, 4, f"Overworld Coords: {location.overworld_cords}")
     else:
         stdscr.addstr(2, 2, "No location created yet.")
 
@@ -69,10 +71,11 @@ def create_location(stdscr):
         stdscr.addstr(6, 4, f"Buildings: {location.buildings}")
         stdscr.addstr(7, 4, f"Town: {location.town}")
         stdscr.addstr(8, 4, f"Connections: {location.connections}")
+        stdscr.addstr(9, 4, f"Overworld Coords: {location.overworld_cords}")
 
-        stdscr.addstr(9, 2, "Select an attribute to edit (Press Enter to confirm):")
+        stdscr.addstr(10, 2, "Select an attribute to edit (Press Enter to confirm):")
 
-        attributes = ["Name", "Description", "Is Town", "Buildings", "Town", "Save", "Connections", "Exit"]
+        attributes = ["Name", "Description", "Is Town", "Buildings", "Town", "Save", "Connections","Overworld Coords", "Exit"]
         current_attribute_idx = 0
 
         while True:
@@ -133,7 +136,7 @@ def create_location(stdscr):
                     location.is_town = is_town_input.strip().lower() == "t"
                 
                 elif current_attribute_idx == 3:
-                    stdscr.addstr(19, 2, "Enter buildings (comma-separated list):")
+                    stdscr.addstr(19, 2, "Enter buildings (comma-separated tuple):")
                     stdscr.refresh()
                     buildings_input = ""
                     while True:
@@ -261,24 +264,34 @@ def create_location(stdscr):
                     stdscr.addstr(25, 2, "Enter travel description:")
                     stdscr.refresh()
                     travel_description_input = ""
-                    while True:
-                        stdscr.addstr(26, 2, travel_description_input)
-                        stdscr.refresh()
-                        key = stdscr.getch()
-                        if key == curses.KEY_ENTER or key in [10, 13]:
-                            break
-                        elif key == curses.KEY_BACKSPACE:
-                            travel_description_input = travel_description_input[:-1]
-                        else:
-                            travel_description_input += chr(key)
-                        #stdscr.addstr(27, 2, travel_description_input.ljust(60))  # Display input text
-                        stdscr.refresh()
+                    # while True:
+                    stdscr.addstr(26, 2, travel_description_input)
+                    stdscr.refresh()
+                    curses.echo()
+                    travel_description_input = stdscr.getstr(26, 2, 128).decode(encoding="utf-8")
+                    stdscr.refresh()
 
                     # Assuming you have a method to add connections in your Location class
                     location.add_connection(direction_input.lower().strip(), selected_location, int(travel_days_input), int(0),travel_description_input)
 
                     stdscr.clear()
                 elif current_attribute_idx == 7:
+                    stdscr.addstr(19, 2, "Enter overworld coordinates (comma-separated tuple):")
+                    stdscr.refresh()
+                    coord_input = ""
+                    while True:
+                        stdscr.addstr(20, 2, coord_input)
+                        stdscr.refresh()
+                        key = stdscr.getch()
+                        if key == curses.KEY_ENTER or key in [10, 13]:
+                            break
+                        elif key == curses.KEY_BACKSPACE:
+                            coord_input = buildings_input[:-1]
+                        else:
+                            coord_input += chr(key)
+                    location_cords = coord_input.split(",")
+                    location.overworld_cords = location_cords
+                elif current_attribute_idx == 8:
                     in_menu = False
 
                 stdscr.clear()
