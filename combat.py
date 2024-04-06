@@ -35,10 +35,11 @@ class Combat:
 
         @return Number of health deducted from opponent
         """
-        # Look up damage of equipped weapon
-        # Deal single hit of damage of equipped weapon
-        # Return weapon attack damage
-        print('ERROR: Not implemented')
+        if weapon.item_type == 'Weapon':
+            damage = abs(weapon.effect)
+            return damage
+        else:
+            print('ERROR: Object equipped is not a weapon')
         pass
 
     def __combat_use_skill(self):
@@ -63,7 +64,7 @@ class Combat:
             damage = self.__combat_attack(fighter)
             return damage
         elif action == 2:   # USE WEAPON
-            damage = self.__combat_use_inv()
+            damage = self.__combat_use_inv(fighter, fighter.inventory['left_arm'])  # Todo: add functionality to use weapons that aren't currently equipped on the left_arm
             return damage
         elif action == 3:   # USE SKILL
             damage = self.__combat_use_skill()
@@ -120,11 +121,14 @@ class Combat:
                 action = int( input() )
                 damage = self.__combat_action(action, self.player_fighter)
                 self.npc_health[enemy_fighter] = self.npc_health[enemy_fighter] - damage
+                print(f'YOU DEALT {damage} POINTS OF DAMAGE TO {enemy_fighter.name}')
                 fighter.health = self.npc_health[enemy_fighter]
 
                 if self.npc_health[enemy_fighter] < 0:
                     print(f'{enemy_fighter.name} HAS DIED')
                     fighters.remove(enemy_fighter)
+                    if len(fighters) <= 0:
+                        self.fighting = False
                 if self.fighting == False:
                     break
 

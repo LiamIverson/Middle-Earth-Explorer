@@ -1,4 +1,4 @@
-import os, random, pickle
+import os, random, pickle, time
 from display import Display as disp
 
 from player import Player
@@ -6,6 +6,7 @@ from location import Location, Town, Wilderness
 from npc import NPC
 from building import Building
 from combat import Combat
+from item import Item
 
 game_map = []
 
@@ -116,16 +117,27 @@ def encounter(chance,encounters,player):
     player.update_stats()
     disp({'player': player.display_stats})        
     print(f"As you travel along the road.")
+    """ BEGIN COMBAT TEST CODE """
     #if(random.randint(0,100) < chance):
     if True:    # Force encounter as test case
-        if(len(encounters) > 0):
-            #npc = encounters[random.randint(0,len(encounters)-1)]
-            npc = encounters[0] # Pick one static case of an encounter as a test
-            action = npc.interaction()
-            if action == 'ACTION_COMBAT':
-                fight = Combat(player, [npc])
-                fight.fight()
-            input("What do you do?: ")
+    #if(len(encounters) > 0):
+        #npc = encounters[random.randint(0,len(encounters)-1)]
+        
+        npc = encounters[0] # Pick one static case of an encounter as a test
+
+        # Give Player a weapon to fight Dave
+        axe = Item('Axe', 'For cutting "wood"', 'Weapon', -6, 'Health', 'npc', 'infinite')
+        player.inventory['left_arm'] = axe
+
+        # Meet Dave
+        action = npc.interaction()
+        if action == 'ACTION_COMBAT':
+            fight = Combat(player, [npc])
+            fight.fight()
+
+        
+        input("What do you do?: ")
+    """ END COMBAT TEST CODE """
 
 
 
@@ -230,12 +242,14 @@ def main():
         print(f"Available directions: {directions}")
         #player.display_inventory()
 
-        if(player.location.town):
-            player.location.in_town()
-        else:
-            encounter_chance = current_location.encounter_chance
-            encounters =  current_location.encounters
-            encounter(encounter_chance,encounters, player)
+        """ BEGIN TEST CODE """
+        # if(player.location.town):
+        #     player.location.in_town()
+        # else:
+        encounter_chance = current_location.encounter_chance
+        encounters =  [npc_dave]
+        encounter(encounter_chance,encounters, player)
+        """ END TEST CODE """
 
 
         
@@ -260,6 +274,7 @@ def main():
             print(f"You have arrived at {current_location.name}. It took {travel_days} days.")
         else:
             print("You can't go that way.")
+            time.sleep(1)
             
 if __name__ == "__main__":
     main()
