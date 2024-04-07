@@ -126,8 +126,12 @@ def encounter(chance,encounters,player):
         npc = encounters[0] # Pick one static case of an encounter as a test
 
         # Give Player a weapon to fight Dave
-        axe = Item('Axe', 'For cutting "wood"', 'Weapon', -6, 'Health', 'npc', 'infinite')
+        axe = Item('Axe', 'For cutting "wood"', 'Weapon', -8, 'Health', 'npc', 'infinite')
+        knife = Item('Knife', 'Oi m8 u got a loiscense for this?', 'Weapon', -6, 'Health', 'npc', 'infinite')
+        sword = Item('Sword', 'For swinging around', 'Weapon', -7, 'Health', 'npc', 'infinite')
         player.inventory['left_arm'] = axe
+        player.inventory['right_arm'] = knife
+        player.inventory["backpack"].append(sword)
 
         # Meet Dave
         action = npc.interaction()

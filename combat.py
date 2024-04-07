@@ -1,5 +1,6 @@
 from player import Player
 from display import Display as disp
+from item import Item
 
 from time import sleep
 
@@ -30,11 +31,28 @@ class Combat:
     def __combat_use_inv(self, fighter: Player, weapon: str) -> float:
         """! Fighter carries out an attack with their weapon
 
+        Current implementation finds all weapons in the player's live
+        inventory and lets them choose whatever weapon they want to
+        attack with
+
         @param fighter  The player object of the fighter
         @param weapon   The name of currently equipped weapon
 
         @return Number of health deducted from opponent
         """
+        
+        avail_weapons = {}
+
+        for inv_location in fighter.inventory:
+            item = fighter.inventory[inv_location]
+            if type(item) is Item:
+                if item.item_type == 'Weapon':
+                    print(f'Found weapon {item.name} in player inventory')
+                    avail_weapons[item.name.lower()] = item
+
+        weapon_selection = input('Which weapon will you attack with?  (Enter weapon name): ').lower()
+        weapon = avail_weapons[weapon_selection]
+
         if weapon.item_type == 'Weapon':
             damage = abs(weapon.effect)
             return damage
@@ -64,7 +82,7 @@ class Combat:
             damage = self.__combat_attack(fighter)
             return damage
         elif action == 2:   # USE WEAPON
-            damage = self.__combat_use_inv(fighter, fighter.inventory['left_arm'])  # Todo: add functionality to use weapons that aren't currently equipped on the left_arm
+            damage = self.__combat_use_inv(fighter, fighter.inventory)
             return damage
         elif action == 3:   # USE SKILL
             damage = self.__combat_use_skill()
