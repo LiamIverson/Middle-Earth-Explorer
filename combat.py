@@ -28,7 +28,7 @@ class Combat:
         print(f'{fighter.name} dealt {attack_strength} points of damage')
         return attack_strength
     
-    def __combat_use_inv(self, fighter: Player, weapon: str) -> float:
+    def __combat_use_inv(self, fighter: Player) -> float:
         """! Fighter carries out an attack with their weapon
 
         Current implementation finds all weapons in the player's live
@@ -36,7 +36,6 @@ class Combat:
         attack with
 
         @param fighter  The player object of the fighter
-        @param weapon   The name of currently equipped weapon
 
         @return Number of health deducted from opponent
         """
@@ -50,8 +49,15 @@ class Combat:
                     print(f'Found weapon {item.name} in player inventory')
                     avail_weapons[item.name.lower()] = item
 
-        weapon_selection = input('Which weapon will you attack with?  (Enter weapon name): ').lower()
-        weapon = avail_weapons[weapon_selection]
+        if len(avail_weapons) > 0:  # If there is at least one weapon in the player's inventory
+            weapon_selection = input('Which weapon will you attack with?  (Enter weapon name): ').lower()
+            weapon = None
+            while weapon is None:   # Force user to select a valid weapon
+                try:
+                    weapon = avail_weapons[weapon_selection]
+                except KeyError:
+                    print('Please choose a valid weapon')
+                    weapon_selection = input('Which weapon will you attack with?  (Enter weapon name): ').lower()
 
         if weapon.item_type == 'Weapon':
             damage = abs(weapon.effect)
@@ -82,7 +88,7 @@ class Combat:
             damage = self.__combat_attack(fighter)
             return damage
         elif action == 2:   # USE WEAPON
-            damage = self.__combat_use_inv(fighter, fighter.inventory)
+            damage = self.__combat_use_inv(fighter)
             return damage
         elif action == 3:   # USE SKILL
             damage = self.__combat_use_skill()
