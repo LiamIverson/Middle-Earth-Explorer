@@ -294,9 +294,23 @@ def create_location(stdscr):
                     location_cords = coord_input.split(",")
                     location.overworld_cords = location_cords
                 elif current_attribute_idx == 8:
-                    stdscr.addstr(21, 2, "Select NPC to add.")
+                    stdscr.addstr(21, 2, "Enter NPC to add.")
                     stdscr.refresh()
-
+                    npc_input = ""
+                    while True:
+                        stdscr.addstr(22, 2, npc_input)
+                        stdscr.refresh()
+                        key = stdscr.getch()
+                        if key == curses.KEY_ENTER or key in [10, 13]:
+                            break
+                        elif key == curses.KEY_BACKSPACE:
+                            npc_input = buildings_input[:-1]
+                        else:
+                            npc_input += chr(key)
+                    if npc_input == "clear":
+                        location.encounters = []
+                    else:
+                        location.encounters.append(npc_input)
                 elif current_attribute_idx == 9:
                     in_menu = False
 
