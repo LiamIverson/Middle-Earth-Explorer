@@ -33,6 +33,7 @@ def draw_menu(stdscr, selected_row_idx):
         stdscr.addstr(7, 4, f"Town: {location.town}")
         stdscr.addstr(8, 4, f"Connections: {location.connections}")
         stdscr.addstr(9, 4, f"Overworld Coords: {location.overworld_cords}")
+        stdscr.addstr(10,4, f"Encounters: {location.encounters}")
     else:
         stdscr.addstr(2, 2, "No location created yet.")
 
@@ -72,16 +73,17 @@ def create_location(stdscr):
         stdscr.addstr(7, 4, f"Town: {location.town}")
         stdscr.addstr(8, 4, f"Connections: {location.connections}")
         stdscr.addstr(9, 4, f"Overworld Coords: {location.overworld_cords}")
+        stdscr.addstr(10,4, f"Encounters: {location.encounters}")
 
-        stdscr.addstr(10, 2, "Select an attribute to edit (Press Enter to confirm):")
+        stdscr.addstr(11,2, "Select an attribute to edit (Press Enter to confirm):")
 
-        attributes = ["Name", "Description", "Is Town", "Buildings", "Town", "Save", "Connections","Overworld Coords", "Exit"]
+        attributes = ["Name", "Description", "Is Town", "Buildings", "Town", "Save", "Connections","Overworld Coords", "Encounters", "Exit"]
         current_attribute_idx = 0
 
         while True:
             for idx, attribute in enumerate(attributes):
                 x = 4
-                y = 11 + idx
+                y = 12 + idx
                 if idx == current_attribute_idx:
                     stdscr.attron(curses.A_REVERSE)
                     stdscr.addstr(y, x, attribute)
@@ -99,7 +101,7 @@ def create_location(stdscr):
                 current_attribute_idx += 1
             elif key == curses.KEY_ENTER or key in [10, 13]:
                 if current_attribute_idx == 0:
-                    stdscr.addstr(19, 2, "Enter name:")
+                    stdscr.addstr(21, 2, "Enter name:")
                     stdscr.refresh()
                     location.name = ""
                     while True:
@@ -110,10 +112,10 @@ def create_location(stdscr):
                             location.name = location.name[:-1]
                         else:
                             location.name += chr(key)
-                        stdscr.addstr(20, 2, location.name.ljust(20))  # Display input text
+                        stdscr.addstr(22, 2, location.name.ljust(20))  # Display input text
                         stdscr.refresh()
                 elif current_attribute_idx == 1:
-                    stdscr.addstr(19, 2, "Enter description:")
+                    stdscr.addstr(21, 2, "Enter description:")
                     stdscr.refresh()
                     location.description = ""
                     while True:
@@ -124,23 +126,23 @@ def create_location(stdscr):
                             location.description = location.description[:-1]
                         else:
                             location.description += chr(key)
-                        stdscr.addstr(20, 2, location.description.ljust(60))  # Display input text
+                        stdscr.addstr(22, 2, location.description.ljust(60))  # Display input text
                         stdscr.refresh()
                 elif current_attribute_idx == 2:
-                    stdscr.addstr(19, 2, "Is town (True/False) Press Enter:")
+                    stdscr.addstr(21, 2, "Is town (True/False) Press Enter:")
                     stdscr.refresh()
-                    is_town_input = stdscr.getstr(20, 2, 5).decode(encoding="utf-8").lower()
+                    is_town_input = stdscr.getstr(22, 2, 5).decode(encoding="utf-8").lower()
                     stdscr.addstr(21, 2, f"You entered: {is_town_input}")
                     stdscr.refresh()
                     stdscr.getstr()
                     location.is_town = is_town_input.strip().lower() == "t"
                 
                 elif current_attribute_idx == 3:
-                    stdscr.addstr(19, 2, "Enter buildings (comma-separated tuple):")
+                    stdscr.addstr(21, 2, "Enter buildings (comma-separated tuple):")
                     stdscr.refresh()
                     buildings_input = ""
                     while True:
-                        stdscr.addstr(20, 2, buildings_input)
+                        stdscr.addstr(22, 2, buildings_input)
                         stdscr.refresh()
                         key = stdscr.getch()
                         if key == curses.KEY_ENTER or key in [10, 13]:
@@ -156,12 +158,12 @@ def create_location(stdscr):
 
 
                 elif current_attribute_idx == 4:
-                    stdscr.addstr(19, 2, "Enter town (comma-separated list):")
+                    stdscr.addstr(21, 2, "Enter town (comma-separated list):")
                     stdscr.refresh()
-                    town_input = stdscr.getstr(20, 2, 60).decode(encoding="utf-8")
+                    town_input = stdscr.getstr(22, 2, 60).decode(encoding="utf-8")
                     location.town = town_input.split(",")
                 elif current_attribute_idx == 5:
-                    stdscr.addstr(19, 2, "Enter name:")
+                    stdscr.addstr(21, 2, "Enter name:")
                     stdscr.refresh()
                     file_name = ""
                     while True:
@@ -172,17 +174,17 @@ def create_location(stdscr):
                             file_name = file_name[:-1]
                         else:
                             file_name += chr(key)
-                        stdscr.addstr(20, 2, file_name.ljust(20))  # Display input text
+                        stdscr.addstr(22, 2, file_name.ljust(20))  # Display input text
                         stdscr.refresh()
                     save_location(location, file_name+".pkl")
                 
                 elif current_attribute_idx == 6:
                     # Enter functionality to add connections
-                    stdscr.addstr(19, 2, "Enter connection direction (e.g., North, South, East, West):")
+                    stdscr.addstr(21, 2, "Enter connection direction (e.g., North, South, East, West):")
                     stdscr.refresh()
                     direction_input = ""
                     while True:
-                        stdscr.addstr(20, 2, direction_input)
+                        stdscr.addstr(22, 2, direction_input)
                         stdscr.refresh()
                         key = stdscr.getch()
                         if key == curses.KEY_ENTER or key in [10, 13]:
@@ -191,7 +193,7 @@ def create_location(stdscr):
                             direction_input = direction_input[:-1]
                         else:
                             direction_input += chr(key)
-                        stdscr.addstr(20, 2, direction_input.ljust(60))  # Display input text
+                        stdscr.addstr(21, 2, direction_input.ljust(60))  # Display input text
                         stdscr.refresh()
 
                     stdscr.addstr(21, 2, "Select connected location:")
@@ -276,11 +278,11 @@ def create_location(stdscr):
 
                     stdscr.clear()
                 elif current_attribute_idx == 7:
-                    stdscr.addstr(19, 2, "Enter overworld coordinates (comma-separated tuple):")
+                    stdscr.addstr(21, 2, "Enter overworld coordinates (comma-separated tuple):")
                     stdscr.refresh()
                     coord_input = ""
                     while True:
-                        stdscr.addstr(20, 2, coord_input)
+                        stdscr.addstr(22, 2, coord_input)
                         stdscr.refresh()
                         key = stdscr.getch()
                         if key == curses.KEY_ENTER or key in [10, 13]:
@@ -292,6 +294,10 @@ def create_location(stdscr):
                     location_cords = coord_input.split(",")
                     location.overworld_cords = location_cords
                 elif current_attribute_idx == 8:
+                    stdscr.addstr(21, 2, "Select NPC to add.")
+                    stdscr.refresh()
+
+                elif current_attribute_idx == 9:
                     in_menu = False
 
                 stdscr.clear()
@@ -336,7 +342,7 @@ def create_enemy(stdscr):
         while True:
             for idx, attribute in enumerate(attributes):
                 x = 4
-                y = 17 + idx
+                y = 16 + idx
                 if idx == current_attribute_idx:
                     stdscr.attron(curses.A_REVERSE)
                     stdscr.addstr(y, x, attribute)
