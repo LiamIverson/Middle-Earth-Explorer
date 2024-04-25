@@ -3,6 +3,7 @@ class Player:
         self.name = name
         self.location = None
         self.inventory = {'food': 10, 'wood':0, 'gold':0, 'left arm':None,"right arm":None, "chest":None,"head":None, "backpack":[]}  # Starting with 10 units of food
+        self.health = 20
         self.hunger = 0
         self.exhaustion = 0
         self.strength = strength
@@ -14,6 +15,25 @@ class Player:
 
     def move(self, new_location):
         self.location = new_location
+
+
+
+    def add_item_backpack(self,item):
+        self.inventory["backpack"].append(item)
+
+    def remove_item_backpack(self,item):
+        self.inventory["backpack"].remove(item)
+
+    #Pass item object along with the slot keyword to equip.
+    #Must already be present in inventory
+    def equip_item(self,item,position):
+        if item in self.inventory["backpack"]:
+            self.inventory[position] = item
+    
+    def use_item(self,item):
+        #To Do. Implement logic for use. This might be mostly handled outside the class in contextual functions
+        pass
+
 
     def consume_food(self, amount):
         if self.inventory['food'] >= amount:
@@ -42,5 +62,6 @@ class Player:
             self.display_stats['Location'] = self.location.name
         self.display_stats['Inventory'] = self.inventory
         self.display_stats['Hunger'] = self.hunger
+        self.display_stats['Health'] = self.health
         self.display_stats["Overworld X"] = self.overworld_x
         self.display_stats["Overworld Y"] = self.overworld_y
