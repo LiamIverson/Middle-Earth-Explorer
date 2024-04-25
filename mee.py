@@ -81,7 +81,7 @@ def load_locations():
 
 
 def create_world():
-    
+
     global regions
 
 
@@ -240,14 +240,12 @@ def main():
         print(f"Available directions: {directions}")
         #player.display_inventory()
 
-        """ BEGIN TEST CODE """
-        # if(player.location.town):
-        #     player.location.in_town()
-        # else:
-        encounter_chance = current_location.encounter_chance
-        encounters =  [npc_dave]
-        encounter(encounter_chance,encounters, player)
-        """ END TEST CODE """
+        if(player.location.town):
+            player.location.in_town()
+        else:
+            encounter_chance = current_location.encounter_chance
+            encounters =  current_location.encounters
+            encounter(encounter_chance,encounters, player)
 
 
         
