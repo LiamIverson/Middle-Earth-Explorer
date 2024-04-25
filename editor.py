@@ -331,7 +331,7 @@ def create_enemy(stdscr):
 
             stdscr.addstr(15, 2, "Select an attribute to edit (Press Enter to confirm):")
         except:
-            pass
+            continue
 
         attributes = ["Name", "Description", "Strength", "Dexterity", "Intelligence", "NPC Type", "Hostility", "Dialog", "Rumors", "Room Rate", "Goods", "Dialog Trees", "Save", "Exit"]
         current_attribute_idx = 0
