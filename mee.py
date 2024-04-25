@@ -81,12 +81,11 @@ def load_locations():
 
 
 def create_world():
-
-    global npc_dave # Temporarily made dave global so we can encounter with him as a test
+    
     global regions
 
 
-    npc_dave = NPC("Dave","It is a man named Dave.", "Hello my name is Dave.", 20, 20, 20, "Inn_Patron", False, rumors = ['Davey Jones got a big ol cock.'], dialog_trees=[os.path.normpath('resources/dialog/dave.yaml')], room_rate=-1, goods=[])
+    # npc_dave = NPC("Dave","It is a man named Dave.", "Hello my name is Dave.", 20, 20, 20, "Inn_Patron", False, rumors = ['Davey Jones got a big ol cock.'], dialog_trees=[os.path.normpath('resources/dialog/dave.yaml')], room_rate=-1, goods=[])
 
     # bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
 
@@ -114,34 +113,14 @@ def create_world():
 
 
 def encounter(chance,encounters,player):
-    player.update_stats()
-    disp({'player': player.display_stats})        
-    print(f"As you travel along the road.")
-    """ BEGIN COMBAT TEST CODE """
-    #if(random.randint(0,100) < chance):
-    if True:    # Force encounter as test case
-    #if(len(encounters) > 0):
-        #npc = encounters[random.randint(0,len(encounters)-1)]
-        
-        npc = encounters[0] # Pick one static case of an encounter as a test
-
-        # Give Player a weapon to fight Dave
-        axe = Item('Axe', 'For cutting "wood"', 'Weapon', -8, 'Health', 'npc', 'infinite')
-        knife = Item('Knife', 'Oi m8 u got a loiscense for this?', 'Weapon', -6, 'Health', 'npc', 'infinite')
-        sword = Item('Sword', 'For swinging around', 'Weapon', -7, 'Health', 'npc', 'infinite')
-        player.inventory['left_arm'] = axe
-        player.inventory['right_arm'] = knife
-        player.inventory["backpack"].append(sword)
-
-        # Meet Dave
-        action = npc.interaction()
-        if action == 'ACTION_COMBAT':
-            fight = Combat(player, [npc])
-            fight.fight()
-
-        
-        input("What do you do?: ")
-    """ END COMBAT TEST CODE """
+    if(random.randint(0,100) < chance):
+        player.update_stats()
+        disp({'player': player.display_stats})
+        print("As you travel along the road.")
+        if(len(encounters) > 0):
+            npc = encounters[random.randint(0,len(encounters)-1)]
+            npc.interaction()
+            input("What do you do?: ")
 
 
 
@@ -177,8 +156,24 @@ def travel(num_days, player, encounter_chance, travel_description,encounters,dir
 
     for day_count in range(1, num_days + 1):
         print(f"Day {day_count}: " + travel_description)
-        encounters=[npc_dave]   # We will force an encounter with Dave as a test case
+        
+        player.overworld_x += direction_mod[0]
+        player.overworld_y += direction_mod[1]
+
         encounter(encounter_chance,encounters, player)
+
+        overworld_location = over_world[player.overworld_x][player.overworld_y]
+
+        if(overworld_location != 0):
+            if(overworld_location in regions):
+                pass
+            else:
+                destination = overworld_location
+            break
+
+
+
+
 
         #Effects of Travel
         player.hunger += 1
@@ -193,7 +188,6 @@ def travel(num_days, player, encounter_chance, travel_description,encounters,dir
                 camp(player,day_count)
 
     return destination
-
 
 
 
