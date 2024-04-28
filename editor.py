@@ -37,7 +37,7 @@ def draw_menu(stdscr, selected_row_idx):
     else:
         stdscr.addstr(2, 2, "No location created yet.")
 
-    menu_items = ["Create Location", "Create Enemy", "Exit"]
+    menu_items = ["Create Location", "Create Enemy", "Create Building", "Exit"]
     for idx, item in enumerate(menu_items):
         x = w//2 - len(item)//2
         y = h//2 - len(menu_items)//2 + idx
@@ -138,23 +138,27 @@ def create_location(stdscr):
                     location.is_town = is_town_input.strip().lower() == "t"
                 
                 elif current_attribute_idx == 3:
-                    stdscr.addstr(21, 2, "Enter buildings (comma-separated tuple):")
+                    stdscr.addstr(21, 2, "Enter building name: ")
                     stdscr.refresh()
-                    buildings_input = ""
+                    building_input = ""
+                    
                     while True:
-                        stdscr.addstr(22, 2, buildings_input)
+                        stdscr.addstr(22, 2, building_input)
                         stdscr.refresh()
                         key = stdscr.getch()
                         if key == curses.KEY_ENTER or key in [10, 13]:
                             break
                         elif key == curses.KEY_BACKSPACE:
-                            buildings_input = buildings_input[:-1]
+                            building_input = building_input[:-1]
                         else:
-                            buildings_input += chr(key)
-                    building_names = buildings_input.split(",")
-                    location.buildings = []
-                    for name in building_names:
-                        location.buildings.append(Building(name, "","",[]))  # Assuming Building is the class for building objects with a name and description attribute
+                            building_input += chr(key)
+                    
+                    building_name = building_input
+
+                    with open(os.path.join(locations_folder, building_name+'.pkl'), 'rb') as file:
+                        building_object = pickle.load(file)
+                        location.buildings.append(building_object)
+                    
 
 
                 elif current_attribute_idx == 4:
