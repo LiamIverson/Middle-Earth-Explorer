@@ -27,11 +27,9 @@ class Location:
 class Town:
 
 
-    def __init__(self, name, description, buildings, npcs):
-        self.description = description
-        self.name = name
-        self.buildings = buildings
+    def __init__(self, npcs, town_encounters):
         self.nps = npcs
+        self.town_encounters = town_encounters
 
 
 

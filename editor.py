@@ -154,7 +154,7 @@ def create_location(stdscr):
                             building_input += chr(key)
                     
                     building_name = building_input
-
+                    locations_folder = 'locations'
                     with open(os.path.join(locations_folder, building_name+'.pkl'), 'rb') as file:
                         building_object = pickle.load(file)
                         location.buildings.append(building_object)
