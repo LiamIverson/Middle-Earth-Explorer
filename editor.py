@@ -314,21 +314,24 @@ def create_enemy(stdscr):
         stdscr.addstr(0, w//2 - len(title)//2, title)
 
         # Display current enemy attributes
-        stdscr.addstr(2, 2, "Current Enemy Attributes:")
-        stdscr.addstr(3, 4, f"Name: {npc.name}")
-        stdscr.addstr(4, 4, f"Description: {npc.description}")
-        stdscr.addstr(5, 4, f"Strength: {npc.strength}")
-        stdscr.addstr(6, 4, f"Dexterity: {npc.dexterity}")
-        stdscr.addstr(7, 4, f"Intelligence: {npc.intelligence}")
-        stdscr.addstr(8, 4, f"NPC Type: {npc.npc_type}")
-        stdscr.addstr(8, 4, f"Hostile?: {npc.hostile}") # Is this boolean?  What type is this expected to be?
-        stdscr.addstr(9, 4, f"Dialog: {npc.dialog}")
-        stdscr.addstr(10, 4, f"Rumors: {npc.rumors}")
-        stdscr.addstr(11, 4, f"Room Rate: {npc.room_rate}")
-        stdscr.addstr(12, 4, f"Goods: {npc.goods}")
-        stdscr.addstr(13, 4, f"Dialog Trees: {npc.dialog_trees}")
+        try:
+            stdscr.addstr(2, 2, "Current Enemy Attributes:")
+            stdscr.addstr(3, 4, f"Name: {npc.name}")
+            stdscr.addstr(4, 4, f"Description: {npc.description}")
+            stdscr.addstr(5, 4, f"Strength: {npc.strength}")
+            stdscr.addstr(6, 4, f"Dexterity: {npc.dexterity}")
+            stdscr.addstr(7, 4, f"Intelligence: {npc.intelligence}")
+            stdscr.addstr(8, 4, f"NPC Type: {npc.npc_type}")
+            stdscr.addstr(8, 4, f"Hostile?: {npc.hostile}") # Is this boolean?  What type is this expected to be?
+            stdscr.addstr(9, 4, f"Dialog: {npc.dialog}")
+            stdscr.addstr(10, 4, f"Rumors: {npc.rumors}")
+            stdscr.addstr(11, 4, f"Room Rate: {npc.room_rate}")
+            stdscr.addstr(12, 4, f"Goods: {npc.goods}")
+            stdscr.addstr(13, 4, f"Dialog Trees: {npc.dialog_trees}")
 
-        stdscr.addstr(15, 2, "Select an attribute to edit (Press Enter to confirm):")
+            stdscr.addstr(15, 2, "Select an attribute to edit (Press Enter to confirm):")
+        except:
+            continue
 
         attributes = ["Name", "Description", "Strength", "Dexterity", "Intelligence", "NPC Type", "Hostility", "Dialog", "Rumors", "Room Rate", "Goods", "Dialog Trees", "Save", "Exit"]
         current_attribute_idx = 0
@@ -339,10 +342,16 @@ def create_enemy(stdscr):
                 y = 17 + idx
                 if idx == current_attribute_idx:
                     stdscr.attron(curses.A_REVERSE)
-                    stdscr.addstr(y, x, attribute)
+                    try:
+                        stdscr.addstr(y, x, attribute)
+                    except:
+                        pass
                     stdscr.attroff(curses.A_REVERSE)
                 else:
-                    stdscr.addstr(y, x, attribute)
+                    try:
+                        stdscr.addstr(y, x, attribute)
+                    except:
+                        pass
 
             stdscr.refresh()
 
@@ -354,7 +363,10 @@ def create_enemy(stdscr):
                 current_attribute_idx += 1
             elif key == curses.KEY_ENTER or key in [10, 13]:
                 if current_attribute_idx == 0:
-                    stdscr.addstr(32, 2, "Enter name:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter name:")
+                    except:
+                        pass
                     stdscr.refresh()
                     npc.name = ""
                     while True:
@@ -365,10 +377,16 @@ def create_enemy(stdscr):
                             npc.name = npc.name[:-1]
                         else:
                             npc.name += chr(key)
-                        stdscr.addstr(33, 2, npc.name.ljust(20))  # Display input text
+                        try:
+                            stdscr.addstr(33, 2, npc.name.ljust(20))  # Display input text
+                        except:
+                            pass
                         stdscr.refresh()
                 elif current_attribute_idx == 1:
-                    stdscr.addstr(32, 2, "Enter description:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter description:")
+                    except:
+                        pass
                     stdscr.refresh()
                     npc.description = ""
                     while True:
@@ -379,53 +397,89 @@ def create_enemy(stdscr):
                             npc.description = npc.description[:-1]
                         else:
                             npc.description += chr(key)
-                        stdscr.addstr(33, 2, npc.description.ljust(60))  # Display input text
+                        try:
+                            stdscr.addstr(33, 2, npc.description.ljust(60))  # Display input text
+                        except:
+                            pass
                         stdscr.refresh()
                 elif current_attribute_idx == 2:
-                    stdscr.addstr(32, 2, "Enter enemy strength:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter enemy strength:")
+                    except:
+                        pass
                     stdscr.refresh()
                     strength_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    stdscr.addstr(34, 2, f"You entered: {strength_input}")
+                    try:
+                        stdscr.addstr(34, 2, f"You entered: {strength_input}")
+                    except:
+                        pass
                     stdscr.refresh()
                     stdscr.getstr()
                     npc.strength = strength_input.strip()
                 
                 elif current_attribute_idx == 3:
-                    stdscr.addstr(32, 2, "Enter enemy dexterity:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter enemy dexterity:")
+                    except:
+                        pass
                     stdscr.refresh()
                     dexterity_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    stdscr.addstr(34, 2, f"You entered: {dexterity_input}")
+                    try:
+                        stdscr.addstr(34, 2, f"You entered: {dexterity_input}")
+                    except:
+                        pass
                     stdscr.refresh()
                     stdscr.getstr()
                     npc.dexterity = dexterity_input.strip()
 
 
                 elif current_attribute_idx == 4:
-                    stdscr.addstr(32, 2, "Enter enemy intelligence:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter enemy intelligence:")
+                    except:
+                        pass
                     stdscr.refresh()
                     intelligence_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    stdscr.addstr(34, 2, f"You entered: {intelligence_input}")
+                    try:
+                        stdscr.addstr(34, 2, f"You entered: {intelligence_input}")
+                    except:
+                        pass
                     stdscr.refresh()
                     stdscr.getstr()
                     npc.intelligence = intelligence_input.strip()
 
                 elif current_attribute_idx == 5:
-                    stdscr.addstr(32, 2, "Enter enemy NPC Type:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter enemy NPC Type:")
+                    except:
+                        pass
                     stdscr.refresh()
                     npc_type_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    stdscr.addstr(34, 2, f"You entered: {npc_type_input}")
+                    try:
+                        stdscr.addstr(34, 2, f"You entered: {npc_type_input}")
+                    except:
+                        pass
                     stdscr.refresh()
                     stdscr.getstr()
                     npc.npc_type = npc_type_input.strip()
 
                 elif current_attribute_idx == 6:
-                    stdscr.addstr(32, 2, "Enter enemy hostility:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter enemy hostility:")
+                    except:
+                        pass
                     stdscr.refresh()
                     try:
                         hostility_input = int(stdscr.getstr(33, 2, 5).decode(encoding="utf-8"))
-                        stdscr.addstr(34, 2, f"You entered: {hostility_input}")
+                        try:
+                            stdscr.addstr(34, 2, f"You entered: {hostility_input}")
+                        except:
+                            continue
                     except TypeError:
-                        stdscr.addstr(34, 2, f"Please enter a valid integer input")
+                        try:
+                            stdscr.addstr(34, 2, f"You entered: {hostility_input}")
+                        except:
+                            continue
                         continue
                     
                     stdscr.refresh()
@@ -433,58 +487,97 @@ def create_enemy(stdscr):
                     npc.hostile = hostility_input.strip()
                 
                 elif current_attribute_idx == 7:
-                    stdscr.addstr(32, 2, "Enter enemy dialog as ~ delimited strings:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter enemy dialog as ~ delimited strings:")
+                    except:
+                        pass
                     stdscr.refresh()
                     try:
                         dialog_input = list(stdscr.getstr(33, 2, 320).decode(encoding="utf-8").split('~'))
-                        stdscr.addstr(34, 2, f"Parsed dialog input: {dialog_input}")
+                        try:
+                            stdscr.addstr(34, 2, f"Parsed dialog input: {dialog_input}")
+                        except:
+                            pass
                     except TypeError:
-                        stdscr.addstr(34, 2, f"Unable to parse dialog entered")
+                        try:
+                            stdscr.addstr(34, 2, f"Unable to parse dialog entered")
+                        except:
+                            continue
                     stdscr.refresh()
                     stdscr.getstr()
                     npc.dialog = dialog_input
 
                 elif current_attribute_idx == 8:
-                    stdscr.addstr(32, 2, "Enter enemy rumors as ~ delimited strings (keep it appropriate):")
+                    try:
+                        stdscr.addstr(32, 2, "Enter enemy rumors as ~ delimited strings (keep it appropriate):")
+                    except:
+                        continue
                     stdscr.refresh()
                     rumors_input = list(stdscr.getstr(33, 2, 320).decode(encoding="utf-8").split('~'))
-                    stdscr.addstr(34, 2, f"You entered: {rumors_input}")
+                    try:
+                        stdscr.addstr(34, 2, f"You entered: {rumors_input}")
+                    except:
+                        continue
                     stdscr.refresh()
                     stdscr.getstr()
                     npc.rumors = rumors_input
 
                 elif current_attribute_idx == 9:
-                    stdscr.addstr(32, 2, "Enter enemy room rate:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter enemy room rate:")
+                    except:
+                        continue
                     stdscr.refresh()
                     try:
                         room_rate_input = int(stdscr.getstr(33, 2, 5).decode(encoding="utf-8"))
-                        stdscr.addstr(34, 2, f"You entered: {room_rate_input}")
+                        try:
+                            stdscr.addstr(34, 2, f"You entered: {room_rate_input}")
+                        except:
+                            continue
                     except TypeError:
-                        stdscr.addstr(34, 2, f"Please enter integer value")
+                        try:
+                            stdscr.addstr(34, 2, f"Please enter integer value")
+                        except:
+                            continue
                     stdscr.refresh()
                     stdscr.getstr()
                     npc.room_rate = room_rate_input
                 
                 elif current_attribute_idx == 10:
-                    stdscr.addstr(32, 2, "Enter enemy default goods, delimited by ~:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter enemy default goods, delimited by ~:")
+                    except:
+                        continue
                     stdscr.refresh()
                     goods_input = stdscr.getstr(33, 2, 128).decode(encoding="utf-8").split('~')
-                    stdscr.addstr(34, 2, f"You entered: {goods_input}")
+                    try:
+                        stdscr.addstr(34, 2, f"You entered: {goods_input}")
+                    except:
+                        continue
                     stdscr.refresh()
                     stdscr.getstr()
                     npc.goods = goods_input
 
                 elif current_attribute_idx == 11:
-                    stdscr.addstr(32, 2, "Enter enemy dialog trees:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter enemy dialog trees:")
+                    except:
+                        continue
                     stdscr.refresh()
                     dialog_trees_input = stdscr.getstr(33, 2, 320).decode(encoding="utf-8").lower()
-                    stdscr.addstr(34, 2, f"You entered: {dialog_trees_input}")
+                    try:
+                        stdscr.addstr(34, 2, f"You entered: {dialog_trees_input}")
+                    except:
+                        continue
                     stdscr.refresh()
                     stdscr.getstr()
                     npc.dialog_trees = dialog_trees_input
 
                 elif current_attribute_idx == 12:
-                    stdscr.addstr(32, 2, "Enter save name for enemy:")
+                    try:
+                        stdscr.addstr(32, 2, "Enter save name for enemy:")
+                    except:
+                        continue
                     stdscr.refresh()
                     file_name = ""
                     while True:
@@ -495,7 +588,11 @@ def create_enemy(stdscr):
                             file_name = file_name[:-1]
                         else:
                             file_name += chr(key)
-                        stdscr.addstr(34, 2, file_name.ljust(20))  # Display input text
+                        
+                        try:
+                            stdscr.addstr(34, 2, file_name.ljust(20))  # Display input text
+                        except:
+                            continue
                         stdscr.refresh()
                     save_location(npc, file_name+".pkl")
                 elif current_attribute_idx == 13:
@@ -505,6 +602,7 @@ def create_enemy(stdscr):
                 break
 
 def main(stdscr):
+    os.system(f'mode 200,60')
     global location
     curses.curs_set(0)
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
