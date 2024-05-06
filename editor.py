@@ -30,10 +30,9 @@ def draw_menu(stdscr, selected_row_idx):
         stdscr.addstr(4, 4, f"Description: {location.description}")
         stdscr.addstr(5, 4, f"Is Town: {location.is_town}")
         stdscr.addstr(6, 4, f"Buildings: {location.buildings}")
-        stdscr.addstr(7, 4, f"Town: {location.town}")
-        stdscr.addstr(8, 4, f"Connections: {location.connections}")
-        stdscr.addstr(9, 4, f"Overworld Coords: {location.overworld_cords}")
-        stdscr.addstr(10,4, f"Encounters: {location.encounters}")
+        stdscr.addstr(7, 4, f"Connections: {location.connections}")
+        stdscr.addstr(8, 4, f"Overworld Coords: {location.overworld_cords}")
+        stdscr.addstr(9,4, f"Encounters: {location.encounters}")
     else:
         stdscr.addstr(2, 2, "No location created yet.")
 
@@ -552,5 +551,7 @@ def main(stdscr):
                 create_enemy(stdscr)
             elif current_row == 2:
                 create_building(stdscr)
+            elif current_row == 3:
+                break
 
 curses.wrapper(main)
