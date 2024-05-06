@@ -3,6 +3,7 @@ class Player:
         self.name = name
         self.location = None
         self.inventory = {'food': 10, 'wood':0, 'gold':0, 'left arm':None,"right arm":None, "chest":None,"head":None, "backpack":[]}  # Starting with 10 units of food
+        self.health = 20
         self.hunger = 0
         self.exhaustion = 0
         self.strength = strength
@@ -61,5 +62,6 @@ class Player:
             self.display_stats['Location'] = self.location.name
         self.display_stats['Inventory'] = self.inventory
         self.display_stats['Hunger'] = self.hunger
+        self.display_stats['Health'] = self.health
         self.display_stats["Overworld X"] = self.overworld_x
         self.display_stats["Overworld Y"] = self.overworld_y

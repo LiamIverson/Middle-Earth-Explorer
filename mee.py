@@ -1,10 +1,12 @@
-import os, random, pickle
+import os, random, pickle, time
 from display import Display as disp
 
 from player import Player
 from location import Location, Town, Wilderness
 from npc import NPC
 from building import Building
+from combat import Combat
+from item import Item
 
 game_map = []
 
@@ -83,10 +85,7 @@ def create_world():
     global regions
 
 
-
-
-    # npc_dave = NPC("Dave","It is a man named Dave.", "Hello my name is Dave.", 20, 20, 20, "Inn_Patron", False, rumors = ['Davey Jones got a big ol cock.'])
-
+    # npc_dave = NPC("Dave","It is a man named Dave.", "Hello my name is Dave.", 20, 20, 20, "Inn_Patron", False, rumors = ['Davey Jones got a big ol cock.'], dialog_trees=[os.path.normpath('resources/dialog/dave.yaml')], room_rate=-1, goods=[])
 
     # bag_end = Location("Bag End", "The cozy hobbit hole of Bilbo Baggins sitting atop Bag End in the town of Hobbiton.")
 
@@ -116,7 +115,7 @@ def create_world():
 def encounter(chance,encounters,player):
     if(random.randint(0,100) < chance):
         player.update_stats()
-        disp({'player': player.display_stats})        # ToDo: Don't pass 'player' here, pass stats object
+        disp({'player': player.display_stats})
         print("As you travel along the road.")
         if(len(encounters) > 0):
             #This will need to be updated so that it uses the returned encounter key to look up the actual NPC.
@@ -190,7 +189,6 @@ def travel(num_days, player, encounter_chance, travel_description,encounters,dir
                 camp(player,day_count)
 
     return destination
-
 
 
 
@@ -273,6 +271,7 @@ def main():
             print(f"You have arrived at {current_location.name}. It took {travel_days} days.")
         else:
             print("You can't go that way.")
-
+            time.sleep(1)
+            
 if __name__ == "__main__":
     main()
