@@ -526,7 +526,8 @@ def create_enemy(stdscr):
 
 
 def create_building(stdscr):
-    
+    pass
+
 def main(stdscr):
     global location
     curses.curs_set(0)
@@ -542,7 +543,7 @@ def main(stdscr):
 
         if key == curses.KEY_UP and current_row > 0:
             current_row -= 1
-        elif key == curses.KEY_DOWN and current_row < 2:
+        elif key == curses.KEY_DOWN and current_row < 3:
             current_row += 1
         elif key == curses.KEY_ENTER or key in [10, 13]:
             if current_row == 0:
@@ -550,6 +551,6 @@ def main(stdscr):
             elif current_row == 1:
                 create_enemy(stdscr)
             elif current_row == 2:
-                break
+                create_building(stdscr)
 
 curses.wrapper(main)
