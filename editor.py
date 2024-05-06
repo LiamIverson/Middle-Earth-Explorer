@@ -70,14 +70,13 @@ def create_location(stdscr):
         stdscr.addstr(4, 4, f"Description: {location.description}")
         stdscr.addstr(5, 4, f"Is Town: {location.is_town}")
         stdscr.addstr(6, 4, f"Buildings: {location.buildings}")
-        stdscr.addstr(7, 4, f"Town: {location.town}")
-        stdscr.addstr(8, 4, f"Connections: {location.connections}")
-        stdscr.addstr(9, 4, f"Overworld Coords: {location.overworld_cords}")
-        stdscr.addstr(10,4, f"Encounters: {location.encounters}")
+        stdscr.addstr(7, 4, f"Connections: {location.connections}")
+        stdscr.addstr(8, 4, f"Overworld Coords: {location.overworld_cords}")
+        stdscr.addstr(9,4, f"Encounters: {location.encounters}")
 
         stdscr.addstr(11,2, "Select an attribute to edit (Press Enter to confirm):")
 
-        attributes = ["Name", "Description", "Is Town", "Buildings", "Town", "Save", "Connections","Overworld Coords", "Encounters", "Exit"]
+        attributes = ["Name", "Description", "Is Town", "Buildings", "Save", "Connections","Overworld Coords", "Encounters", "Exit"]
         current_attribute_idx = 0
 
         while True:
@@ -162,13 +161,7 @@ def create_location(stdscr):
                         location.buildings.append(building_object)
                     
 
-
                 elif current_attribute_idx == 4:
-                    stdscr.addstr(21, 2, "Enter town (comma-separated list):")
-                    stdscr.refresh()
-                    town_input = stdscr.getstr(22, 2, 60).decode(encoding="utf-8")
-                    location.town = town_input.split(",")
-                elif current_attribute_idx == 5:
                     stdscr.addstr(21, 2, "Enter name:")
                     stdscr.refresh()
                     file_name = ""
@@ -184,7 +177,7 @@ def create_location(stdscr):
                         stdscr.refresh()
                     save_location(location, file_name+".pkl")
                 
-                elif current_attribute_idx == 6:
+                elif current_attribute_idx == 5:
                     # Enter functionality to add connections
                     stdscr.addstr(21, 2, "Enter connection direction (e.g., North, South, East, West):")
                     stdscr.refresh()
@@ -283,7 +276,7 @@ def create_location(stdscr):
                     location.add_connection(direction_input.lower().strip(), selected_location, int(travel_days_input), int(0),travel_description_input)
 
                     stdscr.clear()
-                elif current_attribute_idx == 7:
+                elif current_attribute_idx == 6:
                     stdscr.addstr(21, 2, "Enter overworld coordinates (comma-separated tuple):")
                     stdscr.refresh()
                     coord_input = ""
@@ -299,7 +292,7 @@ def create_location(stdscr):
                             coord_input += chr(key)
                     location_cords = coord_input.split(",")
                     location.overworld_cords = location_cords
-                elif current_attribute_idx == 8:
+                elif current_attribute_idx == 7:
                     stdscr.addstr(21, 2, "Enter NPC to add.")
                     stdscr.refresh()
                     npc_input = ""
@@ -317,7 +310,7 @@ def create_location(stdscr):
                         location.encounters = []
                     else:
                         location.encounters.append(npc_input)
-                elif current_attribute_idx == 9:
+                elif current_attribute_idx == 8:
                     in_menu = False
 
                 stdscr.clear()
@@ -530,6 +523,10 @@ def create_enemy(stdscr):
                 stdscr.clear()
                 break
 
+
+
+def create_building(stdscr):
+    
 def main(stdscr):
     global location
     curses.curs_set(0)

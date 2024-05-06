@@ -19,11 +19,15 @@ class Location:
 
 
     def enter_town(self):
+        
         print("You enter the town of " + self.name)
         print("The town contains these buildings ")
+        
         for i in self.buildings:
             print(i.name)
+        
         building_name = ""
+
         while(building_name != "exit"):
             building_name = input("Enter the name of the building you wish to visit, or 'exit' to leave.").lower()
             for i in self.buildings:
