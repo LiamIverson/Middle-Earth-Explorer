@@ -9,11 +9,18 @@ from npc import NPC
 
 location = None
 npc = None
+building = None
+
+MAX_STR_INPUT_CHARS = 128
 
 
 def save_location(location, filename):
     with open('locations/'+filename, 'wb') as file:
         pickle.dump(location, file)
+
+def save_building(building, filename):
+    with open('buildings/'+filename, 'wb') as file:
+        pickle.dump(building, file)
 
 
 def draw_menu(stdscr, selected_row_idx):
@@ -268,7 +275,7 @@ def create_location(stdscr):
                     stdscr.addstr(26, 2, travel_description_input)
                     stdscr.refresh()
                     curses.echo()
-                    travel_description_input = stdscr.getstr(26, 2, 128).decode(encoding="utf-8")
+                    travel_description_input = stdscr.getstr(26, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
                     stdscr.refresh()
 
                     # Assuming you have a method to add connections in your Location class
@@ -454,7 +461,7 @@ def create_enemy(stdscr):
                     stdscr.addstr(32, 2, "Enter enemy dialog as ~ delimited strings:")
                     stdscr.refresh()
                     try:
-                        dialog_input = list(stdscr.getstr(33, 2, 320).decode(encoding="utf-8").split('~'))
+                        dialog_input = list(stdscr.getstr(33, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").split('~'))
                         stdscr.addstr(34, 2, f"Parsed dialog input: {dialog_input}")
                     except TypeError:
                         stdscr.addstr(34, 2, f"Unable to parse dialog entered")
@@ -465,7 +472,7 @@ def create_enemy(stdscr):
                 elif current_attribute_idx == 8:
                     stdscr.addstr(32, 2, "Enter enemy rumors as ~ delimited strings (keep it appropriate):")
                     stdscr.refresh()
-                    rumors_input = list(stdscr.getstr(33, 2, 320).decode(encoding="utf-8").split('~'))
+                    rumors_input = list(stdscr.getstr(33, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").split('~'))
                     stdscr.addstr(34, 2, f"You entered: {rumors_input}")
                     stdscr.refresh()
                     stdscr.getstr()
@@ -486,7 +493,7 @@ def create_enemy(stdscr):
                 elif current_attribute_idx == 10:
                     stdscr.addstr(32, 2, "Enter enemy default goods, delimited by ~:")
                     stdscr.refresh()
-                    goods_input = stdscr.getstr(33, 2, 128).decode(encoding="utf-8").split('~')
+                    goods_input = stdscr.getstr(33, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").split('~')
                     stdscr.addstr(34, 2, f"You entered: {goods_input}")
                     stdscr.refresh()
                     stdscr.getstr()
@@ -495,7 +502,7 @@ def create_enemy(stdscr):
                 elif current_attribute_idx == 11:
                     stdscr.addstr(32, 2, "Enter enemy dialog trees:")
                     stdscr.refresh()
-                    dialog_trees_input = stdscr.getstr(33, 2, 320).decode(encoding="utf-8").lower()
+                    dialog_trees_input = stdscr.getstr(33, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
                     stdscr.addstr(34, 2, f"You entered: {dialog_trees_input}")
                     stdscr.refresh()
                     stdscr.getstr()
@@ -525,7 +532,108 @@ def create_enemy(stdscr):
 
 
 def create_building(stdscr):
-    pass
+    global building
+    in_menu = True
+
+    while in_menu:
+        if building is None:
+            building=Building('', '', '', [])
+
+        stdscr.clear()
+        h, w = stdscr.getmaxyx()
+
+        title = "Create Building"
+        stdscr.addstr(0, w//2 - len(title)//2, title)
+
+        # Display current building attributes
+        stdscr.addstr(2, 2, "Current Building Attributes:")
+        stdscr.addstr(3, 4, f"Name: {building.name}")
+        stdscr.addstr(4, 4, f"Building Type: {building.building_type}")
+        stdscr.addstr(5, 4, f"Description: {building.description}")
+        stdscr.addstr(6, 4, f"NPCs in Building: {building.npcs}")
+
+        stdscr.addstr(16, 2, "Select an attribute to edit (Press Enter to confirm):")
+
+        attributes = ["Name", "Building Type", "Description", "NPCs in Building", "Save", "Exit"]
+        current_attribute_idx = 0
+
+        while True:
+            for idx, attribute in enumerate(attributes):
+                x = 4
+                y = 8 + idx
+                if idx == current_attribute_idx:
+                    stdscr.attron(curses.A_REVERSE)
+                    stdscr.addstr(y, x, attribute)
+                    stdscr.attroff(curses.A_REVERSE)
+                else:
+                    stdscr.addstr(y, x, attribute)
+
+            stdscr.refresh()
+
+            key = stdscr.getch()
+
+            if key == curses.KEY_UP and current_attribute_idx > 0:
+                current_attribute_idx -= 1
+            elif key == curses.KEY_DOWN and current_attribute_idx < len(attributes) - 1:
+                current_attribute_idx += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                if current_attribute_idx == 0:
+                    stdscr.addstr(17, 2, "Enter Building Name:")
+                    stdscr.refresh()
+                    curses.echo()
+                    building_name_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
+                    stdscr.addstr(19, 2, f"You entered: {building_name_input}")
+                    stdscr.refresh()
+                    stdscr.getstr()
+                    building.name = building_name_input.strip()
+                elif current_attribute_idx == 1:
+                    stdscr.addstr(17, 2, "Enter Building Type:")
+                    stdscr.refresh()
+                    curses.echo()
+                    building_type_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
+                    stdscr.addstr(19, 2, f"You entered: {building_type_input}")
+                    stdscr.refresh()
+                    stdscr.getstr()
+                    building.building_type = building_type_input.strip()
+                elif current_attribute_idx == 2:
+                    stdscr.addstr(17, 2, "Enter Description:")
+                    stdscr.refresh()
+                    description_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
+                    stdscr.addstr(19, 2, f"You entered: {description_input}")
+                    stdscr.refresh()
+                    stdscr.getstr()
+                    building.description = description_input.strip()
+                
+                elif current_attribute_idx == 3:
+                    stdscr.addstr(17, 2, "Enter NPCs in building as ~ delimited strings:")
+                    stdscr.refresh()
+                    curses.echo()
+                    npcs_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
+                    stdscr.addstr(19, 2, f"You entered: {npcs_input}")
+                    stdscr.refresh()
+                    stdscr.getstr()
+                    building.npcs = npcs_input.split('~')
+
+                elif current_attribute_idx == 4:
+                    stdscr.addstr(17, 2, "Enter save name for building:")
+                    stdscr.refresh()
+                    file_name = ""
+                    while True:
+                        key = stdscr.getch()
+                        if key == 10:  # Enter key
+                            break
+                        elif key == 127:  # Backspace key
+                            file_name = file_name[:-1]
+                        else:
+                            file_name += chr(key)
+                        stdscr.addstr(18, 2, file_name.ljust(20))  # Display input text
+                        stdscr.refresh()
+                    save_building(building, file_name+".pkl")
+                elif current_attribute_idx == 5:
+                    in_menu = False
+
+                stdscr.clear()
+                break
 
 def main(stdscr):
     global location
