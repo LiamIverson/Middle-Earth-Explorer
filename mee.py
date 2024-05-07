@@ -118,6 +118,7 @@ def encounter(chance,encounters,player):
         disp({'player': player.display_stats})
         print("As you travel along the road.")
         if(len(encounters) > 0):
+            #This will need to be updated so that it uses the returned encounter key to look up the actual NPC.
             npc = encounters[random.randint(0,len(encounters)-1)]
             npc.interaction()
             input("What do you do?: ")
