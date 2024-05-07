@@ -38,30 +38,30 @@ class Location:
     def add_building(building):
         self.buildings.append(building)
 
-# class Town:
+class Town:
 
 
-#     def __init__(self, npcs, town_encounters):
-#         self.nps = npcs
-#         self.town_encounters = town_encounters
+    def __init__(self, npcs, town_encounters):
+        self.nps = npcs
+        self.town_encounters = town_encounters
 
 
 
-#     def enter_town(self):
-#         print("You enter the town of " + self.name)
-#         print("The town contains these buildings ")
-#         for i in self.buildings:
-#             print(i.name)
-#         building_name = ""
-#         while(building_name != "exit"):
-#             building_name = input("Enter the name of the building you wish to visit, or 'exit' to leave.").lower()
-#             for i in self.buildings:
-#                 if(building_name == i.name.lower()):
-#                     i.enter_building()
+    def enter_town(self):
+        print("You enter the town of " + self.name)
+        print("The town contains these buildings ")
+        for i in self.buildings:
+            print(i.name)
+        building_name = ""
+        while(building_name != "exit"):
+            building_name = input("Enter the name of the building you wish to visit, or 'exit' to leave.").lower()
+            for i in self.buildings:
+                if(building_name == i.name.lower()):
+                    i.enter_building()
 
 
-#     def add_building(building):
-#         self.buildings.append(building)
+    def add_building(building):
+        self.buildings.append(building)
 
 
 
