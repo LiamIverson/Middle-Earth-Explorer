@@ -2,13 +2,15 @@ from dialog_tree import DialogTree
 import yaml
 
 class NPC:
-    def __init__(self, name: str, description: str, dialog: None, strength: int, dexterity: int, intelligence: int, npc_type: str, hostile: bool, room_rate: int, rumors: list, goods: list, dialog_trees: list):
+    def __init__(self, name: str, description: str, dialog: None, strength: int, dexterity: int, intelligence: int, constitution:int, charisma:int, npc_type: str, hostile: bool, room_rate: int, rumors: list, goods: list, dialog_trees: list):
 
         self.name = name
         self.description = description
         self.strength = strength
         self.dexterity = dexterity
         self.intelligence = intelligence
+        self.constitution = constitution
+        self.charisma = charisma
         self.npc_type = npc_type
         self.hostile = hostile
         self.dialog =  dialog
