@@ -11,14 +11,24 @@ location = None
 npc = None
 building = None
 
-MAX_STR_INPUT_CHARS = 128
+MAX_STR_INPUT_CHARS = 320
 
+
+def save_enemy(location, filename):
+    if not os.path.exists('npcs/'):
+        os.makedirs('npcs/')
+    with open('npcs/'+filename, 'wb') as file:
+        pickle.dump(location, file)
 
 def save_location(location, filename):
+    if not os.path.exists('locations/'):
+        os.makedirs('locations/')
     with open('locations/'+filename, 'wb') as file:
         pickle.dump(location, file)
 
 def save_building(building, filename):
+    if not os.path.exists('buildings'):
+        os.makedirs('buildings')
     with open('buildings/'+filename, 'wb') as file:
         pickle.dump(building, file)
 
@@ -526,20 +536,21 @@ def create_enemy(stdscr):
                     stdscr.refresh()
                     try:
                         hostility_input = int(stdscr.getstr(33, 2, 5).decode(encoding="utf-8"))
+                        npc.hostile = hostility_input
                         try:
                             stdscr.addstr(34, 2, f"You entered: {hostility_input}")
                         except:
                             continue
                     except TypeError:
                         try:
-                            stdscr.addstr(34, 2, f"You entered: {hostility_input}")
+                            stdscr.addstr(34, 2, f"Please enter valid hostility value")
                         except:
                             continue
                         continue
                     
                     stdscr.refresh()
                     stdscr.getstr()
-                    npc.hostile = hostility_input.strip()
+                    
                 
                 elif current_attribute_idx == 9:
                     try:
@@ -655,7 +666,7 @@ def create_enemy(stdscr):
                         except:
                             continue
                         stdscr.refresh()
-                    save_location(npc, file_name+".pkl")
+                    save_enemy(npc, file_name+".pkl")
                 elif current_attribute_idx == 15:
                     in_menu = False
 
