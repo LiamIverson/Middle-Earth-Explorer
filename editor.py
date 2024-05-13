@@ -2,6 +2,7 @@ import curses
 import curses.textpad
 import pickle
 import os
+import time
 
 from location import Location
 from building import Building
@@ -13,24 +14,37 @@ building = None
 
 MAX_STR_INPUT_CHARS = 320
 
+def save_pkl(mode: str, obj_to_save: any, filename: str):
+    folder = f'{mode}s'
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    with open(f'{folder}/{filename}', 'wb') as file:
+        pickle.dump(obj_to_save, file)
 
-def save_enemy(location, filename):
-    if not os.path.exists('npcs/'):
-        os.makedirs('npcs/')
-    with open('npcs/'+filename, 'wb') as file:
-        pickle.dump(location, file)
+def save_handler(mode: str, stdscr: any, obj_to_save: any):
+    """
+    Mode shall be one of the following:
+    - building
+    - location
+    - npc
+    """
+    try:
+        stdscr.addstr(35, 2, f"Enter save name for {mode}:")
+    except:
+        pass
+    stdscr.refresh()
+    save_name = ""
+    curses.echo()
+    save_name = stdscr.getstr(36, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
+    stdscr.refresh()
+    stdscr.move(35,2)
+    stdscr.deleteln()
+    stdscr.addstr(35, 2, f"Saving {mode} as: {save_name}.pkl")
+    
+    stdscr.refresh()
+    time.sleep(1)
+    save_pkl(mode, obj_to_save, save_name+".pkl")
 
-def save_location(location, filename):
-    if not os.path.exists('locations/'):
-        os.makedirs('locations/')
-    with open('locations/'+filename, 'wb') as file:
-        pickle.dump(location, file)
-
-def save_building(building, filename):
-    if not os.path.exists('buildings'):
-        os.makedirs('buildings')
-    with open('buildings/'+filename, 'wb') as file:
-        pickle.dump(building, file)
 
 
 def draw_menu(stdscr, selected_row_idx):
@@ -178,20 +192,7 @@ def create_location(stdscr):
                     
 
                 elif current_attribute_idx == 4:
-                    stdscr.addstr(21, 2, "Enter name:")
-                    stdscr.refresh()
-                    file_name = ""
-                    while True:
-                        key = stdscr.getch()
-                        if key == 10:  # Enter key
-                            break
-                        elif key == 127:  # Backspace key
-                            file_name = file_name[:-1]
-                        else:
-                            file_name += chr(key)
-                        stdscr.addstr(22, 2, file_name.ljust(20))  # Display input text
-                        stdscr.refresh()
-                    save_location(location, file_name+".pkl")
+                    save_handler('location', stdscr, location)
                 
                 elif current_attribute_idx == 5:
                     # Enter functionality to add connections
@@ -652,27 +653,8 @@ def create_enemy(stdscr):
                     npc.dialog_trees = dialog_trees_input
 
                 elif current_attribute_idx == 14:
-                    try:
-                        stdscr.addstr(32, 2, "Enter save name for enemy:")
-                    except:
-                        continue
-                    stdscr.refresh()
-                    file_name = ""
-                    while True:
-                        key = stdscr.getch()
-                        if key == 10:  # Enter key
-                            break
-                        elif key == 127:  # Backspace key
-                            file_name = file_name[:-1]
-                        else:
-                            file_name += chr(key)
-                        
-                        try:
-                            stdscr.addstr(34, 2, file_name.ljust(20))  # Display input text
-                        except:
-                            continue
-                        stdscr.refresh()
-                    save_enemy(npc, file_name+".pkl")
+                    save_handler('npc', stdscr, npc)
+
                 elif current_attribute_idx == 15:
                     in_menu = False
 
@@ -765,20 +747,7 @@ def create_building(stdscr):
                     building.npcs = npcs_input.split('~')
 
                 elif current_attribute_idx == 4:
-                    stdscr.addstr(17, 2, "Enter save name for building:")
-                    stdscr.refresh()
-                    file_name = ""
-                    while True:
-                        key = stdscr.getch()
-                        if key == 10:  # Enter key
-                            break
-                        elif key == 127:  # Backspace key
-                            file_name = file_name[:-1]
-                        else:
-                            file_name += chr(key)
-                        stdscr.addstr(18, 2, file_name.ljust(20))  # Display input text
-                        stdscr.refresh()
-                    save_building(building, file_name+".pkl")
+                    save_handler('building', stdscr, building)
                 elif current_attribute_idx == 5:
                     in_menu = False
 
