@@ -74,16 +74,13 @@ def modify_attributes(mode: str, attributes: list, stdscr: any):
         elif key == curses.KEY_ENTER or key in [10, 13]:
             if mode == 'location':
                 in_menu = location_attribute_modifier(current_attribute_idx, stdscr)
-                if in_menu == False:
-                    return in_menu
+                return in_menu
             elif mode == 'npc':
                 in_menu = npc_attribute_modifier(current_attribute_idx, stdscr)
-                if in_menu == False:
-                    return in_menu
+                return in_menu
             elif mode == 'building':
                 in_menu = building_attribute_modifier(current_attribute_idx, stdscr)
-                if in_menu == False:
-                    return in_menu
+                return in_menu
             
 
 
