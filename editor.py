@@ -2,6 +2,7 @@ import curses
 import curses.textpad
 import pickle
 import os
+import time
 
 from location import Location
 from building import Building
@@ -170,12 +171,18 @@ def create_location(stdscr):
                     
                     
                     building_name = building_input
-                    locations_folder = 'locations'
-
-                    with open(os.path.join(locations_folder, building_name+'.pkl'), 'rb') as file:
-                        building_object = pickle.load(file)
-                        location.buildings.append(building_object)
+                    buildings_folder = 'buildings'
                     
+                    try:
+                        with open(os.path.join(buildings_folder, building_name+'.pkl'), 'rb') as file:
+                            building_object = pickle.load(file)
+                            location.buildings.append(building_object)
+                    except FileNotFoundError:
+                        stdscr.addstr(21, 2, f"Error: Building not found at {os.path.join(buildings_folder, building_name+'.pkl')}")
+                        stdscr.clrtobot()
+                        stdscr.refresh()
+                        time.sleep(0.5)
+                        
 
                 elif current_attribute_idx == 4:
                     stdscr.addstr(21, 2, "Enter name:")
