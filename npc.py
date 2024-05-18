@@ -2,7 +2,7 @@ from dialog_tree import DialogTree
 import yaml
 
 class NPC:
-    def __init__(self, name: str, description: str, dialog: None, strength: int, dexterity: int, intelligence: int, constitution:int, charisma:int, npc_type: str, hostile: bool, room_rate: int, rumors: list, goods: list, dialog_trees: list):
+    def __init__(self, name: str, description: str, dialog: None, strength: int, dexterity: int, intelligence: int, constitution:int, charisma:int, hostile: bool, room_rate: int, rumors: list, goods: list, dialog_trees: list):
 
         self.name = name
         self.description = description
@@ -11,7 +11,6 @@ class NPC:
         self.intelligence = intelligence
         self.constitution = constitution
         self.charisma = charisma
-        self.npc_type = npc_type
         self.hostile = hostile
         self.dialog =  dialog
         self.rumors = rumors
@@ -49,24 +48,6 @@ class NPC:
 
             elif(self.npc_type == "Complex_Character"):
                 self.complex_character(self)
-
-
-
-
-    def inn_keeper(self):
-        pass
-
-    def merchant(self):
-        pass
-
-    def blacksmith(self):
-        pass
-
-    def patron(self):
-        pass
-
-    def complex_character(self):
-        pass
 
 
 
