@@ -74,6 +74,7 @@ def modify_attributes(mode: str, attributes: list, stdscr: any):
         elif key == curses.KEY_ENTER or key in [10, 13]:
             if mode == 'location':
                 in_menu = location_attribute_modifier(current_attribute_idx, stdscr)
+                stdscr.addstr(40,2,f'{in_menu}')
                 return in_menu
             elif mode == 'npc':
                 in_menu = npc_attribute_modifier(current_attribute_idx, stdscr)
@@ -251,22 +252,23 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
                 location.description += chr(key)
             stdscr.addstr(y+2, 2, location.description.ljust(60))  # Display input text
             stdscr.refresh()
+        return True
     elif current_attribute_idx == 2:
-        stdscr.addstr(21, 2, "Is town (True/False) Press Enter:")
+        stdscr.addstr(y+1, 2, "Is town (True/False) Press Enter:")
         stdscr.refresh()
-        is_town_input = stdscr.getstr(22, 2, 5).decode(encoding="utf-8").lower()
-        stdscr.addstr(21, 2, f"You entered: {is_town_input}")
+        is_town_input = stdscr.getstr(y+2, 2, 5).decode(encoding="utf-8").lower()
+        stdscr.addstr(y+3, 2, f"You entered: {is_town_input}")
         stdscr.refresh()
         stdscr.getstr()
         location.is_town = is_town_input.strip().lower() == "t"
     
     elif current_attribute_idx == 3:
-        stdscr.addstr(21, 2, "Enter building name: ")
+        stdscr.addstr(y+1, 2, "Enter building name: ")
         stdscr.refresh()
         building_input = ""
         
         while True:
-            stdscr.addstr(22, 2, building_input)
+            stdscr.addstr(y+2, 2, building_input)
             stdscr.refresh()
             key = stdscr.getch()
             if key == curses.KEY_ENTER or key in [10, 13]:
@@ -285,9 +287,9 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
                 building_object = pickle.load(file)
                 location.buildings.append(building_object)
         except FileNotFoundError:
-            stdscr.move(21,2)
+            stdscr.move(y+1,2)
             stdscr.clrtobot()
-            stdscr.addstr(21, 2, f"Error: path {locations_folder}/{building_name}.pkl not found...")
+            stdscr.addstr(y+1, 2, f"Error: path {locations_folder}/{building_name}.pkl not found...")
             stdscr.refresh()
             time.sleep(1)
             return
@@ -298,11 +300,11 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
     
     elif current_attribute_idx == 5:
         # Enter functionality to add connections
-        stdscr.addstr(21, 2, "Enter connection direction (e.g., North, South, East, West):")
+        stdscr.addstr(y+1, 2, "Enter connection direction (e.g., North, South, East, West):")
         stdscr.refresh()
         direction_input = ""
         while True:
-            stdscr.addstr(22, 2, direction_input)
+            stdscr.addstr(y+2, 2, direction_input)
             stdscr.refresh()
             key = stdscr.getch()
             if key == curses.KEY_ENTER or key in [10, 13]:
@@ -311,10 +313,10 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
                 direction_input = direction_input[:-1]
             else:
                 direction_input += chr(key)
-            stdscr.addstr(21, 2, direction_input.ljust(60))  # Display input text
+            stdscr.addstr(y+2, 2, direction_input.ljust(60))  # Display input text
             stdscr.refresh()
 
-        stdscr.addstr(21, 2, "Select connected location:")
+        stdscr.addstr(y+1, 2, "Select connected location:")
         stdscr.refresh()
         # Define the folder where the location files are stored
         locations_folder = "locations"
@@ -340,13 +342,13 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
 
             # Redraw the list of locations with the selection cursor
             for idx, displayed_location in enumerate(locations):
-                y = 22 + idx
-                if y == current_y:
+                y_cur_idx = 22 + idx
+                if y_cur_idx == current_y:
                     stdscr.attron(curses.A_REVERSE)
-                    stdscr.addstr(y, 2, displayed_location.name)
+                    stdscr.addstr(y_cur_idx, 2, displayed_location.name)
                     stdscr.attroff(curses.A_REVERSE)
                 else:
-                    stdscr.addstr(y, 2, displayed_location.name)
+                    stdscr.addstr(y_cur_idx, 2, displayed_location.name)
 
             stdscr.refresh()
 
@@ -362,31 +364,22 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
                 selected_location = locations[current_y - 22]
                 break
 
-        stdscr.addstr(21, 2, f"Connected location: {selected_location}")
+        stdscr.addstr(y+1, 2, f"Connected location: {selected_location}")
+        stdscr.clrtobot()
         stdscr.refresh()
 
-        stdscr.addstr(23, 2, "Enter travel days:")
+        stdscr.addstr(y+2, 2, "Enter travel days:")
         stdscr.refresh()
-        travel_days_input = ""
-        while True:
-            stdscr.addstr(24, 2, travel_days_input)
-            stdscr.refresh()
-            key = stdscr.getch()
-            if key == curses.KEY_ENTER or key in [10, 13]:
-                break
-            elif key == curses.KEY_BACKSPACE:
-                travel_days_input = travel_days_input[:-1]
-            else:
-                travel_days_input += chr(key)
-            stdscr.addstr(24, 2, travel_days_input.ljust(60))  # Display input text
-            stdscr.refresh()
+        curses.echo()
+        travel_days_input = stdscr.getstr(y+3, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
 
-        stdscr.addstr(25, 2, "Enter travel description:")
+        stdscr.addstr(y+2, 2, "Enter travel description:")
+        stdscr.clrtobot()
         stdscr.refresh()
         travel_description_input = ""
         stdscr.refresh()
         curses.echo()
-        travel_description_input = stdscr.getstr(26, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
+        travel_description_input = stdscr.getstr(y+3, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
         stdscr.refresh()
 
         # Assuming you have a method to add connections in your Location class
@@ -395,22 +388,22 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
         stdscr.clear()
 
     elif current_attribute_idx == 6:
-        stdscr.addstr(21, 2, "Enter overworld coordinates (comma-separated tuple):")
+        stdscr.addstr(y+1, 2, "Enter overworld coordinates (comma-separated tuple):")
         stdscr.refresh()
         coord_input = ""
         stdscr.refresh()
         curses.echo()
-        coord_input = stdscr.getstr(26, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
+        coord_input = stdscr.getstr(y+2, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
         location_cords = coord_input.split(",")
         location.overworld_cords = location_cords
 
     elif current_attribute_idx == 7:
-        stdscr.addstr(21, 2, "Enter NPC to add.")
+        stdscr.addstr(y+1, 2, "Enter NPC to add.")
         stdscr.refresh()
         npc_input = ""
         stdscr.refresh()
         curses.echo()
-        npc_input = stdscr.getstr(26, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
+        npc_input = stdscr.getstr(y+2, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
         if npc_input == "clear":
             location.encounters = []
         else:
@@ -423,7 +416,7 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
 def npc_attribute_modifier(current_attribute_idx: int, stdscr: any):
     if current_attribute_idx == 0:
         try:
-            stdscr.addstr(32, 2, "Enter name:")
+            stdscr.addstr(y+1, 2, "Enter name:")
         except:
             pass
         stdscr.refresh()
