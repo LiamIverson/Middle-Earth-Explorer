@@ -77,7 +77,15 @@ def load_locations():
     input()
     return locations
 
-
+def load_items():
+    items = [] # List of item objects
+    if os.path.exists("items"):
+        item_files = [f for f in os.listdir("items") if os.path.isfile(os.path.join("items", f))]
+        for file_name in item_files:
+            with open(os.path.join("items", file_name), "rb") as f:
+                item = pickle.load(f)
+                items.append(item)
+        return items
 
 
 def create_world():
@@ -228,6 +236,8 @@ def main():
     player.location = current_location
     player.overworld_x = current_location.overworld_cords[0]
     player.overworld_y = current_location.overworld_cords[1]
+
+    in_game_items = load_items()
 
     while True:
         player.update_stats()
