@@ -45,8 +45,7 @@ def save_handler(mode: str, stdscr: any, obj_to_save: any):
     time.sleep(1)
     save_pkl(mode, obj_to_save, save_name+".pkl")
 
-def get_y_pos(stdscr: any) -> int:
-    return int(stdscr.getyx()[0])
+
 
 def modify_attributes(mode: str, attributes: list, stdscr: any):
     current_attribute_idx = 0
@@ -164,6 +163,7 @@ def create_enemy(stdscr):
             #npc = NPC(None, None, None, None, None, None, None, None)
             npc=NPC("", "", None, 0, 0, 0, 0, 0, '', False, 0, [], [], [])
 
+        # Replace curses calls with abstractions
         stdscr.clear()
         h, w = stdscr.getmaxyx()
 
@@ -172,6 +172,7 @@ def create_enemy(stdscr):
 
         # Display current enemy attributes
         try:
+            # Todo: Replace addstr calls with abstraction for appending lines
             stdscr.addstr(2, 2, "Current Enemy Attributes:")
             stdscr.addstr(3, 4, f"Name: {npc.name}")
             stdscr.addstr(4, 4, f"Description: {npc.description}")
@@ -213,10 +214,11 @@ def create_building(stdscr):
 
         # Display current building attributes
         stdscr.addstr(2, 2, "Current Building Attributes:")
-        stdscr.addstr(3, 4, f"Name: {building.name}")
-        stdscr.addstr(4, 4, f"Building Type: {building.building_type}")
-        stdscr.addstr(5, 4, f"Description: {building.description}")
-        stdscr.addstr(6, 4, f"NPCs in Building: {building.npcs}")
+        
+        curses_append_line(stdscr, f"Name: {building.name}")
+        curses_append_line(stdscr, f"Building Type: {building.building_type}")
+        curses_append_line(stdscr, f"Description: {building.description}")
+        curses_append_line(stdscr, f"NPCs in Building: {building.npcs}")
 
         stdscr.addstr(16, 2, "Select an attribute to edit (Press Enter to confirm):")
 
@@ -729,7 +731,33 @@ def building_attribute_modifier(current_attribute_idx, stdscr):
     stdscr.clear()
     return True
 
-                
+"""! Abstraction to get most recently
+     written line from the curses
+     window object
+
+@param stdscr The curses window object
+
+@return Current integer cursor line number
+"""
+def get_y_pos(stdscr: any) -> int:
+    return int(stdscr.getyx()[0])
+
+"""! Abstraction to write new-line using curses
+     Appends text on new line after most recently
+     written line
+
+@param stdscr  The curses window object
+@param out_str The string to be appended to the screen
+
+@return Success status (True/False)
+"""
+def curses_append_line(stdscr: any, out_str: str) -> bool:
+    try:
+        y = get_y_pos(stdscr)
+        stdscr.addstr(y+1, 4, out_str)
+        return True
+    except:
+        return False
 
 def main(stdscr):
     os.system(f'mode 200,60')
