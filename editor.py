@@ -82,6 +82,8 @@ def modify_attributes(mode: str, attributes: list, stdscr: any):
             elif mode == 'building':
                 in_menu = building_attribute_modifier(current_attribute_idx, stdscr)
                 return in_menu
+            else:
+                return True
             
 
 
@@ -411,6 +413,9 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
     elif current_attribute_idx == 8:
         stdscr.clear()
         return False
+    
+    stdscr.clear()
+    return True
 
 
 def npc_attribute_modifier(current_attribute_idx: int, stdscr: any):
@@ -672,6 +677,9 @@ def npc_attribute_modifier(current_attribute_idx: int, stdscr: any):
     elif current_attribute_idx == 15:
         stdscr.clear()
         return False
+
+    stdscr.clear()
+    return True
 
 
 def building_attribute_modifier(current_attribute_idx, stdscr):
