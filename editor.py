@@ -12,7 +12,8 @@ location = None
 npc = None
 building = None
 
-MAX_STR_INPUT_CHARS = 320
+MAX_STR_INPUT_CHARS = 320   # Maximum allowable number of characters of user input
+ECHO_PERSIST_DELAY_S = 0.5  # Time (seconds) to display echo'd user input in editor before going back to the attributes menu
 
 def save_pkl(mode: str, obj_to_save: any, filename: str):
     folder = f'{mode}s'
@@ -685,45 +686,18 @@ def npc_attribute_modifier(current_attribute_idx: int, stdscr: any):
 
 
 def building_attribute_modifier(current_attribute_idx, stdscr):
-    y = get_y_pos(stdscr)
     if current_attribute_idx == 0:
-        stdscr.addstr(y+1, 2, "Enter Building Name:")
-        stdscr.refresh()
-        curses.echo()
-        building_name_input = stdscr.getstr(y+2, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
-        stdscr.addstr(y+3, 2, f"You entered: {building_name_input}")
-        stdscr.refresh()
-        time.sleep(1)
+        building_name_input = curses_editor_input(stdscr, "Enter Building Name:")
         building.name = building_name_input.strip()
     elif current_attribute_idx == 1:
-        stdscr.addstr(17, 2, "Enter Building Type:")
-        stdscr.refresh()
-        curses.echo()
-        building_type_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
-        stdscr.addstr(19, 2, f"You entered: {building_type_input}")
-        stdscr.refresh()
-        stdscr.getstr()
+        building_type_input = curses_editor_input(stdscr, "Enter Building Type:")
         building.building_type = building_type_input.strip()
     elif current_attribute_idx == 2:
-        # stdscr.addstr(17, 2, "Enter Description:")
-        # stdscr.refresh()
-        # description_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
-        # stdscr.addstr(19, 2, f"You entered: {description_input}")
-        # stdscr.refresh()
-        # stdscr.getstr()
         description_input = curses_editor_input(stdscr, "Enter Building Description:")
         building.description = description_input.strip()
-    
     elif current_attribute_idx == 3:
-        stdscr.addstr(17, 2, "Enter NPCs in building as ~ delimited strings:")
-        stdscr.refresh()
-        curses.echo()
-        npcs_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
-        stdscr.addstr(19, 2, f"You entered: {npcs_input}")
-        stdscr.refresh()
-        stdscr.getstr()
+        npcs_input = curses_editor_input(stdscr, "Enter NPCs in building as ~ delimited strings:")
         building.npcs = npcs_input.split('~')
-
     elif current_attribute_idx == 4:
         save_handler('building', stdscr, building)
     elif current_attribute_idx == 5:
@@ -775,7 +749,8 @@ def curses_editor_input(stdscr: any, prompt: str) -> str:
     user_input = stdscr.getstr(y+2, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
     stdscr.addstr(y+3, 2, f"You entered: {user_input}")
     stdscr.refresh()
-    stdscr.getstr()
+    # stdscr.getstr()
+    time.sleep(ECHO_PERSIST_DELAY_S)
     return user_input
 
 def main(stdscr):
