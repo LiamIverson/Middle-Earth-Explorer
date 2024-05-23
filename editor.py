@@ -10,6 +10,9 @@ from npc import NPC
 location = None
 npc = None
 building = None
+npcs = []
+locations = []
+
 
 MAX_STR_INPUT_CHARS = 320
 
@@ -33,6 +36,102 @@ def save_building(building, filename):
         pickle.dump(building, file)
 
 
+
+def load_locations():
+    locations = [] # List of npc objects
+    if os.path.exists("locations"):
+        location_files = [f for f in os.listdir("locations") if os.path.isfile(os.path.join("locations", f))]
+        for file_name in location_files:
+            with open(os.path.join("locations", file_name), "rb") as f:
+                location = pickle.load(f)
+                locations.append(location)
+
+        return locations
+
+
+
+def load_npcs():
+    npcs = [] # List of npc objects
+    if os.path.exists("npcs"):
+        npc_files = [f for f in os.listdir("npcs") if os.path.isfile(os.path.join("npcs", f))]
+        for file_name in npc_files:
+            with open(os.path.join("npcs", file_name), "rb") as f:
+                npc = pickle.load(f)
+                npcs.append(npc)
+
+        return npcs
+
+
+def select_npc_edit():
+    in_menu = True
+
+    while in_menu:
+        stdscr.clear()
+        h, w = stdscr.getmaxyx()
+
+
+        title = "Select NPC"
+        stdscr.addstr(0, w//2 - len(title)//2, title)
+        attributes = npcs
+        while True:
+            for idx, attribute in enumerate(attributes):
+                x = 4
+                y = 12 + idx
+                if idx == current_attribute_idx:
+                    stdscr.attron(curses.A_REVERSE)
+                    stdscr.addstr(y, x, attribute)
+                    stdscr.attroff(curses.A_REVERSE)
+                else:
+                    stdscr.addstr(y, x, attribute)
+
+            stdscr.refresh()
+
+            key = stdscr.getch()
+
+            if key == curses.KEY_UP and current_attribute_idx > 0:
+                current_attribute_idx -= 1
+            elif key == curses.KEY_DOWN and current_attribute_idx < len(attributes) - 1:
+                current_attribute_idx += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                pass
+                #implement NPC selection logic here then set the global npc variable to the NPC stored in the npcs array
+
+def select_location_edit():
+    in_menu = True
+
+    while in_menu:
+        stdscr.clear()
+        h, w = stdscr.getmaxyx()
+
+
+        title = "Select Location"
+        stdscr.addstr(0, w//2 - len(title)//2, title)
+        attributes = locations
+        while True:
+            for idx, attribute in enumerate(attributes):
+                x = 4
+                y = 12 + idx
+                if idx == current_attribute_idx:
+                    stdscr.attron(curses.A_REVERSE)
+                    stdscr.addstr(y, x, attribute)
+                    stdscr.attroff(curses.A_REVERSE)
+                else:
+                    stdscr.addstr(y, x, attribute)
+
+            stdscr.refresh()
+
+            key = stdscr.getch()
+
+            if key == curses.KEY_UP and current_attribute_idx > 0:
+                current_attribute_idx -= 1
+            elif key == curses.KEY_DOWN and current_attribute_idx < len(attributes) - 1:
+                current_attribute_idx += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                pass
+                #implement NPC selection logic here then set the global npc variable to the NPC stored in the npcs array
+
+
+
 def draw_menu(stdscr, selected_row_idx):
     stdscr.clear()
     h, w = stdscr.getmaxyx()
@@ -53,7 +152,7 @@ def draw_menu(stdscr, selected_row_idx):
     else:
         stdscr.addstr(2, 2, "No location created yet.")
 
-    menu_items = ["Create Location", "Create Enemy", "Create Building", "Exit"]
+    menu_items = ["Create Location", "Create Enemy", "Create Building", "Load Location", "Load Enemy", "Load Building", "Exit"]
     for idx, item in enumerate(menu_items):
         x = w//2 - len(item)//2
         y = h//2 - len(menu_items)//2 + idx
@@ -795,13 +894,15 @@ def main(stdscr):
 
     current_row = 0
 
+    npcs = load_npcs()
+
     while True:
         draw_menu(stdscr, current_row)
         key = stdscr.getch()
 
         if key == curses.KEY_UP and current_row > 0:
             current_row -= 1
-        elif key == curses.KEY_DOWN and current_row < 3:
+        elif key == curses.KEY_DOWN and current_row < 7:
             current_row += 1
         elif key == curses.KEY_ENTER or key in [10, 13]:
             if current_row == 0:
@@ -810,7 +911,7 @@ def main(stdscr):
                 create_enemy(stdscr)
             elif current_row == 2:
                 create_building(stdscr)
-            elif current_row == 3:
+            elif current_row == 6:
                 break
 
 curses.wrapper(main)
