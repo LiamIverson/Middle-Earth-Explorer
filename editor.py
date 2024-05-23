@@ -705,12 +705,13 @@ def building_attribute_modifier(current_attribute_idx, stdscr):
         stdscr.getstr()
         building.building_type = building_type_input.strip()
     elif current_attribute_idx == 2:
-        stdscr.addstr(17, 2, "Enter Description:")
-        stdscr.refresh()
-        description_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
-        stdscr.addstr(19, 2, f"You entered: {description_input}")
-        stdscr.refresh()
-        stdscr.getstr()
+        # stdscr.addstr(17, 2, "Enter Description:")
+        # stdscr.refresh()
+        # description_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
+        # stdscr.addstr(19, 2, f"You entered: {description_input}")
+        # stdscr.refresh()
+        # stdscr.getstr()
+        description_input = curses_editor_input(stdscr, "Enter Building Description:")
         building.description = description_input.strip()
     
     elif current_attribute_idx == 3:
@@ -758,6 +759,24 @@ def curses_append_line(stdscr: any, out_str: str) -> bool:
         return True
     except:
         return False
+
+"""! Abstraction to prompt user and store response
+
+@param stdscr  The curses window object
+@param prompt  The question/prompt that the user is responding to
+
+@return Raw user input decoded as a utf-8 string
+"""
+def curses_editor_input(stdscr: any, prompt: str) -> str:
+    y = get_y_pos(stdscr)
+    stdscr.addstr(y+1, 2, prompt)
+    stdscr.refresh()
+    curses.echo()
+    user_input = stdscr.getstr(y+2, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
+    stdscr.addstr(y+3, 2, f"You entered: {user_input}")
+    stdscr.refresh()
+    stdscr.getstr()
+    return user_input
 
 def main(stdscr):
     os.system(f'mode 200,60')
