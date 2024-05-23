@@ -230,36 +230,15 @@ def create_building(stdscr):
 def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
     y = get_y_pos(stdscr)
     if current_attribute_idx == 0:
-        stdscr.addstr(y+1, 2, "Enter name:")
-        stdscr.refresh()
-        location.name = ""
-        while True:
-            key = stdscr.getch()
-            if key == 10:  # Enter key
-                break
-            elif key == 127:  # Backspace key
-                location.name = location.name[:-1]
-            else:
-                location.name += chr(key)
-            stdscr.addstr(y+2, 2, location.name.ljust(20))  # Display input text
-            stdscr.refresh()
+        location_name_input = curses_editor_input(stdscr, "Enter Location Name:")
+        location.name = location_name_input
+        
     elif current_attribute_idx == 1:
-        stdscr.addstr(y+1, 2, "Enter description:")
-        stdscr.refresh()
-        location.description = ""
-        while True:
-            key = stdscr.getch()
-            if key == 10:  # Enter key
-                break
-            elif key == 127:  # Backspace key
-                location.description = location.description[:-1]
-            else:
-                location.description += chr(key)
-            stdscr.addstr(y+2, 2, location.description.ljust(60))  # Display input text
-            stdscr.refresh()
-        return True
+        location_description_input = curses_editor_input(stdscr, "Enter Location Description:")
+        location.description = location_description_input
+
     elif current_attribute_idx == 2:
-        stdscr.addstr(y+1, 2, "Is town (True/False) Press Enter:")
+        stdscr.addstr(y+1, 2, "Is town? (t/f, Press Enter):")
         stdscr.refresh()
         is_town_input = stdscr.getstr(y+2, 2, 5).decode(encoding="utf-8").lower()
         stdscr.addstr(y+3, 2, f"You entered: {is_town_input}")
@@ -268,21 +247,7 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
         location.is_town = is_town_input.strip().lower() == "t"
     
     elif current_attribute_idx == 3:
-        stdscr.addstr(y+1, 2, "Enter building name: ")
-        stdscr.refresh()
-        building_input = ""
-        
-        while True:
-            stdscr.addstr(y+2, 2, building_input)
-            stdscr.refresh()
-            key = stdscr.getch()
-            if key == curses.KEY_ENTER or key in [10, 13]:
-                break
-            elif key == curses.KEY_BACKSPACE:
-                building_input = building_input[:-1]
-            else:
-                building_input += chr(key)
-        
+        building_input = curses_editor_input(stdscr, f"Enter name of building to attach to location {location.name}")
         
         building_name = building_input
         locations_folder = 'locations'
@@ -393,26 +358,17 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
         stdscr.clear()
 
     elif current_attribute_idx == 6:
-        stdscr.addstr(y+1, 2, "Enter overworld coordinates (comma-separated tuple):")
-        stdscr.refresh()
-        coord_input = ""
-        stdscr.refresh()
-        curses.echo()
-        coord_input = stdscr.getstr(y+2, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
+        coord_input = curses_editor_input(stdscr, "Enter overworld coordinates (comma-separated tuple):")
         location_cords = coord_input.split(",")
         location.overworld_cords = location_cords
 
     elif current_attribute_idx == 7:
-        stdscr.addstr(y+1, 2, "Enter NPC to add.")
-        stdscr.refresh()
-        npc_input = ""
-        stdscr.refresh()
-        curses.echo()
-        npc_input = stdscr.getstr(y+2, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
+        npc_input = curses_editor_input(stdscr, "Enter NPC to add:")
         if npc_input == "clear":
             location.encounters = []
         else:
             location.encounters.append(npc_input)
+
     elif current_attribute_idx == 8:
         stdscr.clear()
         return False
@@ -422,256 +378,72 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
 
 
 def npc_attribute_modifier(current_attribute_idx: int, stdscr: any):
+
     if current_attribute_idx == 0:
-        try:
-            stdscr.addstr(y+1, 2, "Enter name:")
-        except:
-            pass
-        stdscr.refresh()
-        npc.name = ""
-        while True:
-            key = stdscr.getch()
-            if key == 10:  # Enter key
-                break
-            elif key == 127:  # Backspace key
-                npc.name = npc.name[:-1]
-            else:
-                npc.name += chr(key)
-            try:
-                stdscr.addstr(33, 2, npc.name.ljust(20))  # Display input text
-            except:
-                pass
-            stdscr.refresh()
+        npc_name_input = curses_editor_input(stdscr, "Enter NPC name:")
+        npc.name = npc_name_input
+
     elif current_attribute_idx == 1:
-        try:
-            stdscr.addstr(32, 2, "Enter description:")
-        except:
-            pass
-        stdscr.refresh()
-        npc.description = ""
-        while True:
-            key = stdscr.getch()
-            if key == 10:  # Enter key
-                break
-            elif key == 127:  # Backspace key
-                npc.description = npc.description[:-1]
-            else:
-                npc.description += chr(key)
-            try:
-                stdscr.addstr(33, 2, npc.description.ljust(60))  # Display input text
-            except:
-                pass
-            stdscr.refresh()
+        npc_description_input = curses_editor_input(stdscr, "Enter NPC description:")
+        npc.description = npc_description_input
+
     elif current_attribute_idx == 2:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy strength:")
-        except:
-            pass
-        stdscr.refresh()
-        strength_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-        try:
-            stdscr.addstr(34, 2, f"You entered: {strength_input}")
-        except:
-            pass
-        stdscr.refresh()
-        stdscr.getstr()
+        strength_input = curses_editor_input(stdscr, "Enter enemy strength:")
         npc.strength = strength_input.strip()
     
     elif current_attribute_idx == 3:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy dexterity:")
-        except:
-            pass
-        stdscr.refresh()
-        dexterity_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-        try:
-            stdscr.addstr(34, 2, f"You entered: {dexterity_input}")
-        except:
-            pass
-        stdscr.refresh()
-        stdscr.getstr()
+        dexterity_input = curses_editor_input(stdscr, "Enter enemy dexterity:")
         npc.dexterity = dexterity_input.strip()
 
-
     elif current_attribute_idx == 4:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy intelligence:")
-        except:
-            pass
-        stdscr.refresh()
-        intelligence_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-        try:
-            stdscr.addstr(34, 2, f"You entered: {intelligence_input}")
-        except:
-            pass
-        stdscr.refresh()
-        stdscr.getstr()
+        intelligence_input = curses_editor_input(stdscr, "Enter enemy intelligence:")
         npc.intelligence = intelligence_input.strip()
+
     elif current_attribute_idx == 5:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy constitution:")
-        except:
-            pass
-        stdscr.refresh()
-        constitution_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-        try:
-            stdscr.addstr(34, 2, f"You entered: {constitution_input}")
-        except:
-            pass
-        stdscr.refresh()
-        stdscr.getstr()
+        constitution_input = curses_editor_input(stdscr, "Enter enemy constitution:")
         npc.constitution = constitution_input.strip()
+
     elif current_attribute_idx == 6:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy charisma:")
-        except:
-            pass
-        stdscr.refresh()
-        charisma_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-        try:
-            stdscr.addstr(34, 2, f"You entered: {charisma_input}")
-        except:
-            pass
-        stdscr.refresh()
-        stdscr.getstr()
+        charisma_input = curses_editor_input(stdscr, "Enter enemy charisma:")
         npc.charisma = charisma_input.strip()
 
     elif current_attribute_idx == 7:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy NPC Type:")
-        except:
-            pass
-        stdscr.refresh()
-        npc_type_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-        try:
-            stdscr.addstr(34, 2, f"You entered: {npc_type_input}")
-        except:
-            pass
-        stdscr.refresh()
-        stdscr.getstr()
+        npc_type_input = curses_editor_input(stdscr, "Enter enemy NPC Type:")
         npc.npc_type = npc_type_input.strip()
 
     elif current_attribute_idx == 8:
-        try:
-            stdscr.addstr(32, 2, "Is NPC hostile?  (yes/no):")
-        except:
-            pass
-        stdscr.refresh()
-
-        hostility_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
+        hostility_input = curses_editor_input(stdscr, "Is NPC hostile?  (yes/no):", suppress_echo=True)
         if hostility_input == 'yes':
             npc.hostile = True
-            try:
-                stdscr.addstr(34, 2, f"NPC is hostile")
-            except:
-                pass
+            curses_append_line(stdscr, "NPC is hostile")
         elif hostility_input == 'no':
             npc.hostile = False
-            try:
-                stdscr.addstr(34, 2, f"NPC is non-hostile")
-            except:
-                pass
+            curses_append_line(stdscr, "NPC is non-hostile")
         else:
-            try:
-                stdscr.addstr(34, 2, f"Please enter a valid input (yes/no)")
-            except:
-                pass
+            curses_append_line(stdscr, "Please enter a valid input (yes/no)")
         
         stdscr.refresh()
         stdscr.getstr()
         
     
     elif current_attribute_idx == 9:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy dialog as ~ delimited strings:")
-        except:
-            pass
-        stdscr.refresh()
-        try:
-            dialog_input = list(stdscr.getstr(33, 2, 320).decode(encoding="utf-8").split('~'))
-            try:
-                stdscr.addstr(34, 2, f"Parsed dialog input: {dialog_input}")
-            except:
-                pass
-
-        except TypeError:
-            try:
-                stdscr.addstr(34, 2, f"Unable to parse dialog entered")
-            except:
-                pass
-        stdscr.refresh()
-        stdscr.getstr()
-        npc.dialog = dialog_input
+        dialog_input = curses_editor_input(stdscr, "Enter enemy dialog as ~ delimited strings:")
+        npc.dialog = dialog_input.split('~')
 
     elif current_attribute_idx == 10:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy rumors as ~ delimited strings (keep it appropriate):")
-        except:
-            pass
-        stdscr.refresh()
-
-        rumors_input = list(stdscr.getstr(33, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").split('~'))
-        try:
-            stdscr.addstr(34, 2, f"You entered: {rumors_input}")
-        except:
-            pass
-
-        stdscr.refresh()
-        stdscr.getstr()
-        npc.rumors = rumors_input
+        rumors_input = curses_editor_input(stdscr, "Enter enemy rumors as ~ delimited strings:")
+        npc.rumors = rumors_input.split('~')
 
     elif current_attribute_idx == 11:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy room rate:")
-        except:
-            pass
-        stdscr.refresh()
-        try:
-            room_rate_input = int(stdscr.getstr(33, 2, 5).decode(encoding="utf-8"))
-            try:
-                stdscr.addstr(34, 2, f"You entered: {room_rate_input}")
-            except:
-                pass
-        except TypeError:
-            try:
-                stdscr.addstr(34, 2, f"Please enter integer value")
-            except:
-                pass
-        stdscr.refresh()
-        stdscr.getstr()
+        room_rate_input = curses_editor_input(stdscr, "Enter enemy room rate:")
         npc.room_rate = room_rate_input
     
     elif current_attribute_idx == 12:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy default goods, delimited by ~:")
-        except:
-            pass
-        stdscr.refresh()
-
-        goods_input = stdscr.getstr(33, 2, 128).decode(encoding="utf-8").split('~')
-        try:
-            stdscr.addstr(34, 2, f"You entered: {goods_input}")
-        except:
-            pass
-
-        stdscr.refresh()
-        stdscr.getstr()
-        npc.goods = goods_input
+        goods_input = curses_editor_input(stdscr, "Enter enemy default goods, delimited by ~:")
+        npc.goods = goods_input.split('~')
 
     elif current_attribute_idx == 13:
-        try:
-            stdscr.addstr(32, 2, "Enter enemy dialog trees:")
-        except:
-            pass
-        stdscr.refresh()
-
-        dialog_trees_input = stdscr.getstr(33, 2, 320).decode(encoding="utf-8").lower()
-        try:
-            stdscr.addstr(34, 2, f"You entered: {dialog_trees_input}")
-        except:
-            pass
-        stdscr.refresh()
-        stdscr.getstr()
+        dialog_trees_input = curses_editor_input(stdscr, "Enter enemy dialog trees:")
         npc.dialog_trees = dialog_trees_input
 
     elif current_attribute_idx == 14:
@@ -741,16 +513,17 @@ def curses_append_line(stdscr: any, out_str: str) -> bool:
 
 @return Raw user input decoded as a utf-8 string
 """
-def curses_editor_input(stdscr: any, prompt: str) -> str:
+def curses_editor_input(stdscr: any, prompt: str, suppress_echo=False) -> str:
     y = get_y_pos(stdscr)
     stdscr.addstr(y+1, 2, prompt)
     stdscr.refresh()
     curses.echo()
     user_input = stdscr.getstr(y+2, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
-    stdscr.addstr(y+3, 2, f"You entered: {user_input}")
-    stdscr.refresh()
-    # stdscr.getstr()
-    time.sleep(ECHO_PERSIST_DELAY_S)
+    if suppress_echo == False:  # Echo user input
+        stdscr.addstr(y+3, 2, f"You entered: {user_input}")
+        stdscr.refresh()
+        # stdscr.getstr()
+        time.sleep(ECHO_PERSIST_DELAY_S)
     return user_input
 
 def main(stdscr):
