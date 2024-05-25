@@ -270,24 +270,13 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
     
     elif current_attribute_idx == 5:
         # Enter functionality to add connections
-        stdscr.addstr(y+1, 2, "Enter connection direction (e.g., North, South, East, West):")
-        stdscr.refresh()
-        direction_input = ""
-        while True:
-            stdscr.addstr(y+2, 2, direction_input)
-            stdscr.refresh()
-            key = stdscr.getch()
-            if key == curses.KEY_ENTER or key in [10, 13]:
-                break
-            elif key == curses.KEY_BACKSPACE:
-                direction_input = direction_input[:-1]
-            else:
-                direction_input += chr(key)
-            stdscr.addstr(y+2, 2, direction_input.ljust(60))  # Display input text
-            stdscr.refresh()
+        direction_input = curses_editor_input(stdscr, "Enter connection direction (e.g., North, South, East, West):", suppress_echo=True)
 
-        stdscr.addstr(y+1, 2, "Select connected location:")
+        stdscr.move(get_y_pos(stdscr)-2, get_x_pos(stdscr))
+        stdscr.clrtobot()
+        curses_append_line(stdscr, "Select connected location:", increment=False, indent=False)
         stdscr.refresh()
+
         # Define the folder where the location files are stored
         locations_folder = "locations"
 
@@ -338,19 +327,9 @@ def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
         stdscr.clrtobot()
         stdscr.refresh()
 
-        stdscr.addstr(y+2, 2, "Enter travel days:")
-        stdscr.refresh()
-        curses.echo()
-        travel_days_input = stdscr.getstr(y+3, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
 
-        stdscr.addstr(y+2, 2, "Enter travel description:")
-        stdscr.clrtobot()
-        stdscr.refresh()
-        travel_description_input = ""
-        stdscr.refresh()
-        curses.echo()
-        travel_description_input = stdscr.getstr(y+3, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
-        stdscr.refresh()
+        travel_days_input = curses_editor_input(stdscr, "Enter travel days:", clean=True)
+        travel_description_input = curses_editor_input(stdscr, "Enter travel description:")
 
         # Assuming you have a method to add connections in your Location class
         location.add_connection(direction_input.lower().strip(), selected_location, int(travel_days_input), int(0),travel_description_input)
@@ -478,6 +457,18 @@ def building_attribute_modifier(current_attribute_idx, stdscr):
     stdscr.clear()
     return True
 
+
+"""! Abstraction to get current character
+     position within a line of the curses
+     window object
+
+@param stdscr The curses window object
+
+@return Current integer cursor position
+"""
+def get_x_pos(stdscr: any) -> int:
+    return int(stdscr.getyx()[1])
+
 """! Abstraction to get most recently
      written line from the curses
      window object
@@ -493,15 +484,22 @@ def get_y_pos(stdscr: any) -> int:
      Appends text on new line after most recently
      written line
 
-@param stdscr  The curses window object
-@param out_str The string to be appended to the screen
+@param stdscr    The curses window object
+@param out_str   The string to be appended to the screen
+@param increment Write string on next line?
 
 @return Success status (True/False)
 """
-def curses_append_line(stdscr: any, out_str: str) -> bool:
+def curses_append_line(stdscr: any, out_str: str, increment=True, indent=True) -> bool:
     try:
         y = get_y_pos(stdscr)
-        stdscr.addstr(y+1, 4, out_str)
+        if increment == True:
+            y=y+1
+        if indent == True:
+            x=4
+        else:
+            x=2
+        stdscr.addstr(y, x, out_str)
         return True
     except:
         return False
@@ -510,11 +508,14 @@ def curses_append_line(stdscr: any, out_str: str) -> bool:
 
 @param stdscr  The curses window object
 @param prompt  The question/prompt that the user is responding to
+@param suppress_echo  Don't echo back to user what they typed
+@param clean   Remove the prompt/response from screen after we're done
 
 @return Raw user input decoded as a utf-8 string
 """
-def curses_editor_input(stdscr: any, prompt: str, suppress_echo=False) -> str:
+def curses_editor_input(stdscr: any, prompt: str, suppress_echo=False, clean=False) -> str:
     y = get_y_pos(stdscr)
+    x = get_x_pos(stdscr)
     stdscr.addstr(y+1, 2, prompt)
     stdscr.refresh()
     curses.echo()
@@ -524,6 +525,9 @@ def curses_editor_input(stdscr: any, prompt: str, suppress_echo=False) -> str:
         stdscr.refresh()
         # stdscr.getstr()
         time.sleep(ECHO_PERSIST_DELAY_S)
+    if clean == True:
+        stdscr.move(y,x)
+        stdscr.clrtobot()
     return user_input
 
 def main(stdscr):
