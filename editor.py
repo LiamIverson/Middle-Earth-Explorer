@@ -20,8 +20,11 @@ ECHO_PERSIST_DELAY_S = 0.5  # Time (seconds) to display echo'd user input in edi
 
 def load_pkl(obj_type: str, filename: str):
     filepath = f'{obj_type}s\\{filename}'
-    with open(filepath, 'rb') as file:
-        obj = pickle.load(file)
+    try:
+        with open(filepath, 'rb') as file:
+            obj = pickle.load(file)
+    except FileNotFoundError:
+        return False
     return obj
 
 def save_pkl(mode: str, obj_to_save: any, filename: str):
@@ -303,13 +306,16 @@ def location_attribute_modifier(current_attribute_name: str, stdscr: any, locati
         pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
         pkl_name = f'{pkl_name_input}.pkl'
         loaded_location = load_pkl('location', pkl_name)
-        location.name = loaded_location.name
-        location.description = loaded_location.description
-        location.is_town = loaded_location.is_town
-        location.buildings = loaded_location.buildings
-        location.connections = loaded_location.connections
-        location.overworld_cords = loaded_location.overworld_cords
-        location.encounters = loaded_location.encounters
+        if loaded_location != False:
+            location.name = loaded_location.name
+            location.description = loaded_location.description
+            location.is_town = loaded_location.is_town
+            location.buildings = loaded_location.buildings
+            location.connections = loaded_location.connections
+            location.overworld_cords = loaded_location.overworld_cords
+            location.encounters = loaded_location.encounters
+        else:
+            curses_append_line(stdscr, "Error, could not load file")
 
 
 
@@ -442,19 +448,22 @@ def npc_attribute_modifier(current_attribute_name: str, stdscr: any, npc: NPC):
         pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
         pkl_name = f'{pkl_name_input}.pkl'
         loaded_npc = load_pkl('npc', pkl_name)
-        npc.name = loaded_npc.name
-        npc.description = loaded_npc.description
-        npc.dexterity = loaded_npc.dexterity
-        npc.intelligence = loaded_npc.intelligence
-        npc.constitution = loaded_npc.constitution
-        npc.charisma = loaded_npc.charisma
-        npc.npc_type = loaded_npc.npc_type
-        npc.hostile = loaded_npc.hostile
-        npc.dialog = loaded_npc.dialog
-        npc.rumors = loaded_npc.rumors
-        npc.room_rate = loaded_npc.room_rate
-        npc.goods = loaded_npc.goods
-        npc.dialog_trees = loaded_npc.dialog_trees
+        if loaded_npc != False:
+            npc.name = loaded_npc.name
+            npc.description = loaded_npc.description
+            npc.dexterity = loaded_npc.dexterity
+            npc.intelligence = loaded_npc.intelligence
+            npc.constitution = loaded_npc.constitution
+            npc.charisma = loaded_npc.charisma
+            npc.npc_type = loaded_npc.npc_type
+            npc.hostile = loaded_npc.hostile
+            npc.dialog = loaded_npc.dialog
+            npc.rumors = loaded_npc.rumors
+            npc.room_rate = loaded_npc.room_rate
+            npc.goods = loaded_npc.goods
+            npc.dialog_trees = loaded_npc.dialog_trees
+        else:
+            curses_append_line(stdscr, "Error, could not load file")
 
 
     elif current_attribute_name == 'Save':
@@ -490,10 +499,13 @@ def building_attribute_modifier(current_attribute_name: str, stdscr: any, buildi
         pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
         pkl_name = f'{pkl_name_input}.pkl'
         loaded_building = load_pkl('building', pkl_name)
-        building.name = loaded_building.name
-        building.description = loaded_building.description
-        building.building_type = loaded_building.building_type
-        building.npcs = loaded_building.npcs
+        if loaded_building != False:
+            building.name = loaded_building.name
+            building.description = loaded_building.description
+            building.building_type = loaded_building.building_type
+            building.npcs = loaded_building.npcs
+        else:
+            curses_append_line(stdscr, "Error, could not load file")
 
     elif current_attribute_name == 'Save':
         save_handler('building', stdscr, building)
@@ -539,13 +551,16 @@ def item_attribute_modifier(current_attribute_name: str, stdscr: any, item: Item
         pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
         pkl_name = f'{pkl_name_input}.pkl'
         loaded_item = load_pkl('item', pkl_name)
-        item.name = loaded_item.name
-        item.description = loaded_item.description
-        item.item_type = loaded_item.item_type
-        item.effect = loaded_item.effect
-        item.effect_stat = loaded_item.effect_stat
-        item.target = loaded_item.target
-        item.consumable = loaded_item.consumable
+        if loaded_item != False:
+            item.name = loaded_item.name
+            item.description = loaded_item.description
+            item.item_type = loaded_item.item_type
+            item.effect = loaded_item.effect
+            item.effect_stat = loaded_item.effect_stat
+            item.target = loaded_item.target
+            item.consumable = loaded_item.consumable
+        else:
+            curses_append_line(stdscr, "Error, could not load file")
 
     elif current_attribute_name == 'Save':
         save_handler('item', stdscr, item)
