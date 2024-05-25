@@ -316,6 +316,7 @@ def location_attribute_modifier(current_attribute_name: str, stdscr: any, locati
             location.encounters = loaded_location.encounters
         else:
             curses_append_line(stdscr, "Error, could not load file")
+            time.sleep(1)
 
 
 
@@ -462,8 +463,9 @@ def npc_attribute_modifier(current_attribute_name: str, stdscr: any, npc: NPC):
             npc.room_rate = loaded_npc.room_rate
             npc.goods = loaded_npc.goods
             npc.dialog_trees = loaded_npc.dialog_trees
-        else:
+        else:          
             curses_append_line(stdscr, "Error, could not load file")
+            time.sleep(1)
 
 
     elif current_attribute_name == 'Save':
@@ -506,6 +508,7 @@ def building_attribute_modifier(current_attribute_name: str, stdscr: any, buildi
             building.npcs = loaded_building.npcs
         else:
             curses_append_line(stdscr, "Error, could not load file")
+            time.sleep(1)
 
     elif current_attribute_name == 'Save':
         save_handler('building', stdscr, building)
@@ -561,6 +564,7 @@ def item_attribute_modifier(current_attribute_name: str, stdscr: any, item: Item
             item.consumable = loaded_item.consumable
         else:
             curses_append_line(stdscr, "Error, could not load file")
+            time.sleep(1)
 
     elif current_attribute_name == 'Save':
         save_handler('item', stdscr, item)
