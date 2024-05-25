@@ -7,10 +7,12 @@ import time
 from location import Location
 from building import Building
 from npc import NPC
+from item import Item
 
 location = None
 npc = None
 building = None
+item = None
 
 MAX_STR_INPUT_CHARS = 320   # Maximum allowable number of characters of user input
 ECHO_PERSIST_DELAY_S = 0.5  # Time (seconds) to display echo'd user input in editor before going back to the attributes menu
@@ -28,6 +30,7 @@ def save_handler(mode: str, stdscr: any, obj_to_save: any):
     - building
     - location
     - npc
+    - item
     """
     try:
         stdscr.addstr(35, 2, f"Enter save name for {mode}:")
@@ -82,6 +85,9 @@ def modify_attributes(mode: str, attributes: list, stdscr: any):
             elif mode == 'building':
                 in_menu = building_attribute_modifier(current_attribute_idx, stdscr)
                 return in_menu
+            elif mode == 'item':
+                in_menu = item_attribute_modifier(current_attribute_idx, stdscr)
+                return in_menu
             else:
                 return True
             
@@ -107,16 +113,16 @@ def draw_menu(stdscr, selected_row_idx):
     else:
         stdscr.addstr(2, 2, "No location created yet.")
 
-    menu_items = ["Create Location", "Create Enemy", "Create Building", "Exit"]
-    for idx, item in enumerate(menu_items):
-        x = w//2 - len(item)//2
+    menu_items = ["Create Location", "Create Enemy", "Create Building", "Create Item", "Exit"]
+    for idx, ite in enumerate(menu_items):
+        x = w//2 - len(ite)//2
         y = h//2 - len(menu_items)//2 + idx
         if idx == selected_row_idx:
             stdscr.attron(curses.A_REVERSE)
-            stdscr.addstr(y, x, item)
+            stdscr.addstr(y, x, ite)
             stdscr.attroff(curses.A_REVERSE)
         else:
-            stdscr.addstr(y, x, item)
+            stdscr.addstr(y, x, ite)
 
     stdscr.refresh()
 
@@ -227,12 +233,47 @@ def create_building(stdscr):
        
         in_menu = modify_attributes('building', attributes, stdscr)
 
+
+def create_item(stdscr):
+    global item
+    in_menu = True
+
+    while in_menu:
+        # Todo: Figure out how to properly initialize the NPC object
+        if item is None:
+            #npc = NPC(None, None, None, None, None, None, None, None)
+            item=Item("", "", "", "", "", "", "")
+
+        # Replace curses calls with abstractions
+        stdscr.clear()
+        h, w = stdscr.getmaxyx()
+
+        title = "Create Item"
+        stdscr.addstr(0, w//2 - len(title)//2, title)
+
+        # Display current item attributes
+        stdscr.addstr(2, 2, "Current Item Attributes:")
+        
+        curses_append_line(stdscr, f"Name: {item.name}")
+        curses_append_line(stdscr, f"Description: {item.description}")
+        curses_append_line(stdscr, f"Item Type: {item.item_type}")
+        curses_append_line(stdscr, f"Item Effect: {item.effect}")
+        curses_append_line(stdscr, f"Item Effect Stat: {item.effect_stat}")
+        curses_append_line(stdscr, f"Item Target: {item.target}")
+        curses_append_line(stdscr, f"Item Consumable Status: {item.consumable}")
+
+        stdscr.addstr(16, 2, "Select an attribute to edit (Press Enter to confirm):")
+
+        attributes = ["Name", "Description", "Item Type", "Effect", "Effect Stat", "Target", "Consumable", "Save", "Exit"]
+       
+        in_menu = modify_attributes('item', attributes, stdscr)
+
 def location_attribute_modifier(current_attribute_idx: int, stdscr: any):
     y = get_y_pos(stdscr)
     if current_attribute_idx == 0:
         location_name_input = curses_editor_input(stdscr, "Enter Location Name:")
         location.name = location_name_input
-        
+
     elif current_attribute_idx == 1:
         location_description_input = curses_editor_input(stdscr, "Enter Location Description:")
         location.description = location_description_input
@@ -440,20 +481,66 @@ def building_attribute_modifier(current_attribute_idx, stdscr):
     if current_attribute_idx == 0:
         building_name_input = curses_editor_input(stdscr, "Enter Building Name:")
         building.name = building_name_input.strip()
+
     elif current_attribute_idx == 1:
         building_type_input = curses_editor_input(stdscr, "Enter Building Type:")
         building.building_type = building_type_input.strip()
+
     elif current_attribute_idx == 2:
         description_input = curses_editor_input(stdscr, "Enter Building Description:")
         building.description = description_input.strip()
+
     elif current_attribute_idx == 3:
         npcs_input = curses_editor_input(stdscr, "Enter NPCs in building as ~ delimited strings:")
         building.npcs = npcs_input.split('~')
+        
     elif current_attribute_idx == 4:
         save_handler('building', stdscr, building)
+
     elif current_attribute_idx == 5:
         stdscr.clear()
         return False
+    
+    stdscr.clear()
+    return True
+
+def item_attribute_modifier(current_attribute_idx, stdscr):
+
+    if current_attribute_idx == 0:
+        item_name_input = curses_editor_input(stdscr, "Enter Item Name:")
+        item.name = item_name_input
+
+    elif current_attribute_idx == 1:
+        item_description_input = curses_editor_input(stdscr, "Enter Item Description:")
+        item.description = item_description_input
+
+    elif current_attribute_idx == 2:
+        item_type_input = curses_editor_input(stdscr, "Enter item type ('Weapon', 'Armor', 'Position')")
+        item.item_type = item_type_input
+
+    elif current_attribute_idx == 3:
+        item_effect_input = curses_editor_input(stdscr, "Enter Item Effect:")
+        item.effect = item_effect_input
+
+    elif current_attribute_idx == 4:
+        item_effect_stat_input = curses_editor_input(stdscr, "Enter the Correlated Player Stat:")
+        item.effect_stat = item_effect_stat_input
+
+    elif current_attribute_idx == 5:
+        item_target_input = curses_editor_input(stdscr, "The target of the item ('player', 'npc', 'both')")
+        item.target = item_target_input
+
+    elif current_attribute_idx == 6:
+        item_consumable_input = curses_editor_input(stdscr, "Is the item single/fixed use or infinite?")
+        item.consumable = item_consumable_input
+
+    elif current_attribute_idx == 7:
+        save_handler('item', stdscr, item)
+
+    elif current_attribute_idx == 8:
+        stdscr.clear()
+        return False
+    
     stdscr.clear()
     return True
 
@@ -546,9 +633,9 @@ def main(stdscr):
 
         if key == curses.KEY_UP and current_row > 0:
             current_row -= 1
-        elif key == curses.KEY_DOWN and current_row < 3:
+        elif key == curses.KEY_DOWN and current_row < 4:
             current_row += 1
-        elif key == curses.KEY_ENTER or key in [10, 13]:
+        elif key == curses.KEY_ENTER or key in [10, 14]:
             if current_row == 0:
                 create_location(stdscr)
             elif current_row == 1:
@@ -556,6 +643,8 @@ def main(stdscr):
             elif current_row == 2:
                 create_building(stdscr)
             elif current_row == 3:
+                create_item(stdscr)
+            elif current_row == 4:
                 break
 
 curses.wrapper(main)
