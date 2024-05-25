@@ -17,6 +17,13 @@ item = None
 MAX_STR_INPUT_CHARS = 320   # Maximum allowable number of characters of user input
 ECHO_PERSIST_DELAY_S = 0.5  # Time (seconds) to display echo'd user input in editor before going back to the attributes menu
 
+
+def load_pkl(obj_type: str, filename: str):
+    filepath = f'{obj_type}s\\{filename}'
+    with open(filepath, 'rb') as file:
+        obj = pickle.load(file)
+    return obj
+
 def save_pkl(mode: str, obj_to_save: any, filename: str):
     folder = f'{mode}s'
     if not os.path.exists(folder):
@@ -56,7 +63,6 @@ def modify_attributes(attributes: list, stdscr: any, obj_und_edit: any):
         current_attribute_name = scrollabe_menu(stdscr, attributes)
         if type(obj_und_edit).__name__ == 'Location':
             in_menu = location_attribute_modifier(current_attribute_name, stdscr, obj_und_edit)
-            stdscr.addstr(40,2,f'{in_menu}')
             return in_menu
         if type(obj_und_edit).__name__ == 'NPC':
             in_menu = npc_attribute_modifier(current_attribute_name, stdscr, obj_und_edit)
@@ -132,7 +138,7 @@ def create_location(stdscr):
 
         stdscr.addstr(11,2, "Select an attribute to edit (Press Enter to confirm):")
 
-        attributes = ["Name", "Description", "Is Town", "Buildings", "Save", "Connections","Overworld Coords", "Encounters", "Exit"]
+        attributes = ["Name", "Description", "Is Town", "Buildings", "Save", "Load", "Connections","Overworld Coords", "Encounters", "Exit"]
         
 
         in_menu = modify_attributes(attributes, stdscr, location)
@@ -179,7 +185,7 @@ def create_enemy(stdscr):
         except:
             continue
 
-        attributes = ["Name", "Description", "Strength", "Dexterity", "Intelligence", "Constitution", "Charisma", "NPC Type", "Hostility", "Dialog", "Rumors", "Room Rate", "Goods", "Dialog Trees", "Save", "Exit"]
+        attributes = ["Name", "Description", "Strength", "Dexterity", "Intelligence", "Constitution", "Charisma", "NPC Type", "Hostility", "Dialog", "Rumors", "Room Rate", "Goods", "Dialog Trees", "Load", "Save", "Exit"]
         
         in_menu = modify_attributes(attributes, stdscr, npc)
 
@@ -208,7 +214,7 @@ def create_building(stdscr):
 
         stdscr.addstr(16, 2, "Select an attribute to edit (Press Enter to confirm):")
 
-        attributes = ["Name", "Building Type", "Description", "NPCs in Building", "Save", "Exit"]
+        attributes = ["Name", "Building Type", "Description", "NPCs in Building", "Load", "Save", "Exit"]
        
         in_menu = modify_attributes(attributes, stdscr, building)
 
@@ -241,7 +247,7 @@ def create_item(stdscr):
 
         stdscr.addstr(16, 2, "Select an attribute to edit (Press Enter to confirm):")
 
-        attributes = ["Name", "Description", "Item Type", "Effect", "Effect Stat", "Target", "Consumable", "Save", "Exit"]
+        attributes = ["Name", "Description", "Item Type", "Effect", "Effect Stat", "Target", "Consumable", "Load", "Save", "Exit"]
        
         in_menu = modify_attributes(attributes, stdscr, item)
 
@@ -292,6 +298,20 @@ def location_attribute_modifier(current_attribute_name: str, stdscr: any, locati
         location.connections = {}
         location.overworld_cords = []
         location.encounters = []
+
+    elif current_attribute_name == 'Load':
+        pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
+        pkl_name = f'{pkl_name_input}.pkl'
+        loaded_location = load_pkl('location', pkl_name)
+        location.name = loaded_location.name
+        location.description = loaded_location.description
+        location.is_town = loaded_location.is_town
+        location.buildings = loaded_location.buildings
+        location.connections = loaded_location.connections
+        location.overworld_cords = loaded_location.overworld_cords
+        location.encounters = loaded_location.encounters
+
+
 
     elif current_attribute_name == 'Connections':
         # Enter functionality to add connections
@@ -418,8 +438,28 @@ def npc_attribute_modifier(current_attribute_name: str, stdscr: any, npc: NPC):
         dialog_trees_input = curses_editor_input(stdscr, "Enter enemy dialog trees:")
         npc.dialog_trees = dialog_trees_input
 
+    elif current_attribute_name == 'Load':
+        pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
+        pkl_name = f'{pkl_name_input}.pkl'
+        loaded_npc = load_pkl('npc', pkl_name)
+        npc.name = loaded_npc.name
+        npc.description = loaded_npc.description
+        npc.dexterity = loaded_npc.dexterity
+        npc.intelligence = loaded_npc.intelligence
+        npc.constitution = loaded_npc.constitution
+        npc.charisma = loaded_npc.charisma
+        npc.npc_type = loaded_npc.npc_type
+        npc.hostile = loaded_npc.hostile
+        npc.dialog = loaded_npc.dialog
+        npc.rumors = loaded_npc.rumors
+        npc.room_rate = loaded_npc.room_rate
+        npc.goods = loaded_npc.goods
+        npc.dialog_trees = loaded_npc.dialog_trees
+
+
     elif current_attribute_name == 'Save':
         save_handler('npc', stdscr, npc)
+        
 
     elif current_attribute_name == 'Exit':
         stdscr.clear()
@@ -445,7 +485,16 @@ def building_attribute_modifier(current_attribute_name: str, stdscr: any, buildi
     elif current_attribute_name == 'NPCs in Building':
         npcs_input = curses_editor_input(stdscr, "Enter NPCs in building as ~ delimited strings:")
         building.npcs = npcs_input.split('~')
-        
+
+    elif current_attribute_name == 'Load':
+        pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
+        pkl_name = f'{pkl_name_input}.pkl'
+        loaded_building = load_pkl('building', pkl_name)
+        building.name = loaded_building.name
+        building.description = loaded_building.description
+        building.building_type = loaded_building.building_type
+        building.npcs = loaded_building.npcs
+
     elif current_attribute_name == 'Save':
         save_handler('building', stdscr, building)
 
@@ -485,6 +534,18 @@ def item_attribute_modifier(current_attribute_name: str, stdscr: any, item: Item
     elif current_attribute_name == 'Consumable':
         item_consumable_input = curses_editor_input(stdscr, "Is the item single/fixed use or infinite?")
         item.consumable = item_consumable_input
+
+    elif current_attribute_name == 'Load':
+        pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
+        pkl_name = f'{pkl_name_input}.pkl'
+        loaded_item = load_pkl('item', pkl_name)
+        item.name = loaded_item.name
+        item.description = loaded_item.description
+        item.item_type = loaded_item.item_type
+        item.effect = loaded_item.effect
+        item.effect_stat = loaded_item.effect_stat
+        item.target = loaded_item.target
+        item.consumable = loaded_item.consumable
 
     elif current_attribute_name == 'Save':
         save_handler('item', stdscr, item)
