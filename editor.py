@@ -109,7 +109,7 @@ def draw_menu(stdscr, selected_row_idx):
     elif result == 'Create Item':
         create_item(stdscr)
     elif result == 'Exit':
-        return
+        return True
 
 def create_location(stdscr):
     location=None
@@ -711,6 +711,7 @@ def main(stdscr):
     current_row = 0
 
     while True:
-        draw_menu(stdscr, current_row)
+        if draw_menu(stdscr, current_row) == True:
+            break
 
 curses.wrapper(main)
