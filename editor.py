@@ -51,22 +51,20 @@ def save_handler(mode: str, stdscr: any, obj_to_save: any):
 
 
 
-def modify_attributes(mode: str, attributes: list, stdscr: any, obj_und_edit: any):
-    current_attribute_idx = 0
-    y_initial_pos = stdscr.getyx()[0]
+def modify_attributes(attributes: list, stdscr: any, obj_und_edit: any):
     while True:
         current_attribute_name = scrollabe_menu(stdscr, attributes)
-        if mode == 'location':
+        if type(obj_und_edit).__name__ == 'Location':
             in_menu = location_attribute_modifier(current_attribute_name, stdscr, obj_und_edit)
             stdscr.addstr(40,2,f'{in_menu}')
             return in_menu
-        elif mode == 'npc':
+        if type(obj_und_edit).__name__ == 'NPC':
             in_menu = npc_attribute_modifier(current_attribute_name, stdscr, obj_und_edit)
             return in_menu
-        elif mode == 'building':
+        if type(obj_und_edit).__name__ == 'Building':
             in_menu = building_attribute_modifier(current_attribute_name, stdscr, obj_und_edit)
             return in_menu
-        elif mode == 'item':
+        if type(obj_und_edit).__name__ == 'Item':
             in_menu = item_attribute_modifier(current_attribute_name, stdscr, obj_und_edit)
             return in_menu
         else:
@@ -137,7 +135,7 @@ def create_location(stdscr):
         attributes = ["Name", "Description", "Is Town", "Buildings", "Save", "Connections","Overworld Coords", "Encounters", "Exit"]
         
 
-        in_menu = modify_attributes('location',  attributes, stdscr, location)
+        in_menu = modify_attributes(attributes, stdscr, location)
 
         
                 
@@ -183,7 +181,7 @@ def create_enemy(stdscr):
 
         attributes = ["Name", "Description", "Strength", "Dexterity", "Intelligence", "Constitution", "Charisma", "NPC Type", "Hostility", "Dialog", "Rumors", "Room Rate", "Goods", "Dialog Trees", "Save", "Exit"]
         
-        in_menu = modify_attributes('npc', attributes, stdscr, npc)
+        in_menu = modify_attributes(attributes, stdscr, npc)
 
 
 def create_building(stdscr):
@@ -212,7 +210,7 @@ def create_building(stdscr):
 
         attributes = ["Name", "Building Type", "Description", "NPCs in Building", "Save", "Exit"]
        
-        in_menu = modify_attributes('building', attributes, stdscr, building)
+        in_menu = modify_attributes(attributes, stdscr, building)
 
 
 def create_item(stdscr):
@@ -245,7 +243,7 @@ def create_item(stdscr):
 
         attributes = ["Name", "Description", "Item Type", "Effect", "Effect Stat", "Target", "Consumable", "Save", "Exit"]
        
-        in_menu = modify_attributes('item', attributes, stdscr, item)
+        in_menu = modify_attributes(attributes, stdscr, item)
 
 def location_attribute_modifier(current_attribute_name: str, stdscr: any, location: Location):
     y = get_y_pos(stdscr)
