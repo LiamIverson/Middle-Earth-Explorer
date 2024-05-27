@@ -96,39 +96,39 @@ def select_npc_edit():
                 pass
                 #implement NPC selection logic here then set the global npc variable to the NPC stored in the npcs array
 
-def select_location_edit():
-    in_menu = True
+# def select_location_edit():
+#     in_menu = True
 
-    while in_menu:
-        stdscr.clear()
-        h, w = stdscr.getmaxyx()
+#     while in_menu:
+#         stdscr.clear()
+#         h, w = stdscr.getmaxyx()
 
 
-        title = "Select Location"
-        stdscr.addstr(0, w//2 - len(title)//2, title)
-        attributes = locations
-        while True:
-            for idx, attribute in enumerate(attributes):
-                x = 4
-                y = 12 + idx
-                if idx == current_attribute_idx:
-                    stdscr.attron(curses.A_REVERSE)
-                    stdscr.addstr(y, x, attribute)
-                    stdscr.attroff(curses.A_REVERSE)
-                else:
-                    stdscr.addstr(y, x, attribute)
+#         title = "Select Location"
+#         stdscr.addstr(0, w//2 - len(title)//2, title)
+#         attributes = locations
+#         while True:
+#             for idx, attribute in enumerate(attributes):
+#                 x = 4
+#                 y = 12 + idx
+#                 if idx == current_attribute_idx:
+#                     stdscr.attron(curses.A_REVERSE)
+#                     stdscr.addstr(y, x, attribute)
+#                     stdscr.attroff(curses.A_REVERSE)
+#                 else:
+#                     stdscr.addstr(y, x, attribute)
 
-            stdscr.refresh()
+#             stdscr.refresh()
 
-            key = stdscr.getch()
+#             key = stdscr.getch()
 
-            if key == curses.KEY_UP and current_attribute_idx > 0:
-                current_attribute_idx -= 1
-            elif key == curses.KEY_DOWN and current_attribute_idx < len(attributes) - 1:
-                current_attribute_idx += 1
-            elif key == curses.KEY_ENTER or key in [10, 13]:
-                pass
-                #implement NPC selection logic here then set the global npc variable to the NPC stored in the npcs array
+#             if key == curses.KEY_UP and current_attribute_idx > 0:
+#                 current_attribute_idx -= 1
+#             elif key == curses.KEY_DOWN and current_attribute_idx < len(attributes) - 1:
+#                 current_attribute_idx += 1
+#             elif key == curses.KEY_ENTER or key in [10, 13]:
+#                 pass
+#                 #implement NPC selection logic here then set the global npc variable to the NPC stored in the npcs array
 
 
 
@@ -430,6 +430,57 @@ def create_location(stdscr):
 
                 stdscr.clear()
                 break
+
+
+def select_location(stdscr):
+    global location
+    # Load all location objects
+    locations = []
+    locations_folder = "locations"
+    for file_name in os.listdir(locations_folder):
+        if file_name.endswith('.pkl'):
+            with open(os.path.join(locations_folder, file_name), 'rb') as file:
+                location_obj = pickle.load(file)
+                locations.append(location_obj)
+
+    # Display a menu to select a location
+    current_y = 22
+    selected_location = None
+
+    prev_y = None  # Initialize prev_y
+    while True:
+        # Clear the previous y position if it's set
+        if prev_y is not None:
+            stdscr.move(prev_y, 2)
+            stdscr.clrtoeol()
+
+        # Redraw the list of locations with the selection cursor
+        for idx, displayed_location in enumerate(locations):
+            y = 22 + idx
+            if y == current_y:
+                stdscr.attron(curses.A_REVERSE)
+                stdscr.addstr(y, 2, displayed_location.name)
+                stdscr.attroff(curses.A_REVERSE)
+            else:
+                stdscr.addstr(y, 2, displayed_location.name)
+
+        stdscr.refresh()
+
+        key = stdscr.getch()
+
+        if key == curses.KEY_UP and current_y > 22:
+            prev_y = current_y  # Set prev_y before moving the cursor
+            current_y -= 1
+        elif key == curses.KEY_DOWN and current_y < 22 + len(locations) - 1:
+            prev_y = current_y  # Set prev_y before moving the cursor
+            current_y += 1
+        elif key == curses.KEY_ENTER or key in [10, 13]:
+            selected_location = locations[current_y - 22]
+            break
+        
+    location = selected_location
+
+
 
 def create_enemy(stdscr):
     global npc
@@ -911,6 +962,8 @@ def main(stdscr):
                 create_enemy(stdscr)
             elif current_row == 2:
                 create_building(stdscr)
+            elif current_row == 3:
+                select_location(stdscr)
             elif current_row == 6:
                 break
 
