@@ -2,35 +2,83 @@ import curses
 import curses.textpad
 import pickle
 import os
+import time
 
 from location import Location
 from building import Building
 from npc import NPC
+from item import Item
 
 location = None
 npc = None
 building = None
+item = None
 
-MAX_STR_INPUT_CHARS = 320
+MAX_STR_INPUT_CHARS = 320   # Maximum allowable number of characters of user input
+ECHO_PERSIST_DELAY_S = 0.5  # Time (seconds) to display echo'd user input in editor before going back to the attributes menu
 
 
-def save_enemy(location, filename):
-    if not os.path.exists('npcs/'):
-        os.makedirs('npcs/')
-    with open('npcs/'+filename, 'wb') as file:
-        pickle.dump(location, file)
+def load_pkl(obj_type: str, filename: str):
+    filepath = f'{obj_type}s\\{filename}'
+    try:
+        with open(filepath, 'rb') as file:
+            obj = pickle.load(file)
+    except FileNotFoundError:
+        return False
+    return obj
 
-def save_location(location, filename):
-    if not os.path.exists('locations/'):
-        os.makedirs('locations/')
-    with open('locations/'+filename, 'wb') as file:
-        pickle.dump(location, file)
+def save_pkl(mode: str, obj_to_save: any, filename: str):
+    folder = f'{mode}s'
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    with open(f'{folder}/{filename}', 'wb') as file:
+        pickle.dump(obj_to_save, file)
 
-def save_building(building, filename):
-    if not os.path.exists('buildings'):
-        os.makedirs('buildings')
-    with open('buildings/'+filename, 'wb') as file:
-        pickle.dump(building, file)
+def save_handler(mode: str, stdscr: any, obj_to_save: any):
+    """
+    Mode shall be one of the following:
+    - building
+    - location
+    - npc
+    - item
+    """
+    try:
+        stdscr.addstr(35, 2, f"Enter save name for {mode}:")
+    except:
+        pass
+    stdscr.refresh()
+    save_name = ""
+    curses.echo()
+    save_name = stdscr.getstr(36, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
+    stdscr.refresh()
+    stdscr.move(35,2)
+    stdscr.deleteln()
+    stdscr.addstr(35, 2, f"Saving {mode} as: {save_name}.pkl")
+    
+    stdscr.refresh()
+    time.sleep(1)
+    save_pkl(mode, obj_to_save, save_name+".pkl")
+
+
+
+def modify_attributes(attributes: list, stdscr: any, obj_und_edit: any):
+    while True:
+        current_attribute_name = scrollabe_menu(stdscr, attributes)
+        if type(obj_und_edit).__name__ == 'Location':
+            in_menu = location_attribute_modifier(current_attribute_name, stdscr, obj_und_edit)
+            return in_menu
+        if type(obj_und_edit).__name__ == 'NPC':
+            in_menu = npc_attribute_modifier(current_attribute_name, stdscr, obj_und_edit)
+            return in_menu
+        if type(obj_und_edit).__name__ == 'Building':
+            in_menu = building_attribute_modifier(current_attribute_name, stdscr, obj_und_edit)
+            return in_menu
+        if type(obj_und_edit).__name__ == 'Item':
+            in_menu = item_attribute_modifier(current_attribute_name, stdscr, obj_und_edit)
+            return in_menu
+        else:
+            return True
+            
 
 
 def draw_menu(stdscr, selected_row_idx):
@@ -53,21 +101,22 @@ def draw_menu(stdscr, selected_row_idx):
     else:
         stdscr.addstr(2, 2, "No location created yet.")
 
-    menu_items = ["Create Location", "Create Enemy", "Create Building", "Exit"]
-    for idx, item in enumerate(menu_items):
-        x = w//2 - len(item)//2
-        y = h//2 - len(menu_items)//2 + idx
-        if idx == selected_row_idx:
-            stdscr.attron(curses.A_REVERSE)
-            stdscr.addstr(y, x, item)
-            stdscr.attroff(curses.A_REVERSE)
-        else:
-            stdscr.addstr(y, x, item)
-
-    stdscr.refresh()
+    menu_items = ["Create Location", "Create Enemy", "Create Building", "Create Item", "Exit"]
+    result = scrollabe_menu(stdscr, menu_items, title=True)
+    if result == 'Create Location':
+        create_location(stdscr)
+    elif result == 'Create Enemy':
+        create_enemy(stdscr)
+    elif result == 'Create Building':
+        create_building(stdscr)
+    elif result == 'Create Item':
+        create_item(stdscr)
+    elif result == 'Exit':
+        return True
 
 def create_location(stdscr):
-    global location
+    location=None
+
     in_menu = True
 
     while in_menu:
@@ -92,246 +141,13 @@ def create_location(stdscr):
 
         stdscr.addstr(11,2, "Select an attribute to edit (Press Enter to confirm):")
 
-        attributes = ["Name", "Description", "Is Town", "Buildings", "Save", "Connections","Overworld Coords", "Encounters", "Exit"]
-        current_attribute_idx = 0
+        attributes = ["Name", "Description", "Is Town", "Buildings", "Save", "Load", "Connections","Overworld Coords", "Encounters", "Exit"]
+        
 
-        while True:
-            for idx, attribute in enumerate(attributes):
-                x = 4
-                y = 12 + idx
-                if idx == current_attribute_idx:
-                    stdscr.attron(curses.A_REVERSE)
-                    stdscr.addstr(y, x, attribute)
-                    stdscr.attroff(curses.A_REVERSE)
-                else:
-                    stdscr.addstr(y, x, attribute)
+        in_menu = modify_attributes(attributes, stdscr, location)
 
-            stdscr.refresh()
-
-            key = stdscr.getch()
-
-            if key == curses.KEY_UP and current_attribute_idx > 0:
-                current_attribute_idx -= 1
-            elif key == curses.KEY_DOWN and current_attribute_idx < len(attributes) - 1:
-                current_attribute_idx += 1
-            elif key == curses.KEY_ENTER or key in [10, 13]:
-                if current_attribute_idx == 0:
-                    stdscr.addstr(21, 2, "Enter name:")
-                    stdscr.refresh()
-                    location.name = ""
-                    while True:
-                        key = stdscr.getch()
-                        if key == 10:  # Enter key
-                            break
-                        elif key == 127:  # Backspace key
-                            location.name = location.name[:-1]
-                        else:
-                            location.name += chr(key)
-                        stdscr.addstr(22, 2, location.name.ljust(20))  # Display input text
-                        stdscr.refresh()
-                elif current_attribute_idx == 1:
-                    stdscr.addstr(21, 2, "Enter description:")
-                    stdscr.refresh()
-                    location.description = ""
-                    while True:
-                        key = stdscr.getch()
-                        if key == 10:  # Enter key
-                            break
-                        elif key == 127:  # Backspace key
-                            location.description = location.description[:-1]
-                        else:
-                            location.description += chr(key)
-                        stdscr.addstr(22, 2, location.description.ljust(60))  # Display input text
-                        stdscr.refresh()
-                elif current_attribute_idx == 2:
-                    stdscr.addstr(21, 2, "Is town (True/False) Press Enter:")
-                    stdscr.refresh()
-                    is_town_input = stdscr.getstr(22, 2, 5).decode(encoding="utf-8").lower()
-                    stdscr.addstr(21, 2, f"You entered: {is_town_input}")
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    location.is_town = is_town_input.strip().lower() == "t"
+        
                 
-                elif current_attribute_idx == 3:
-                    stdscr.addstr(21, 2, "Enter building name: ")
-                    stdscr.refresh()
-                    building_input = ""
-                    
-                    while True:
-                        stdscr.addstr(22, 2, building_input)
-                        stdscr.refresh()
-                        key = stdscr.getch()
-                        if key == curses.KEY_ENTER or key in [10, 13]:
-                            break
-                        elif key == curses.KEY_BACKSPACE:
-                            building_input = building_input[:-1]
-                        else:
-                            building_input += chr(key)
-                    
-                    
-                    building_name = building_input
-                    locations_folder = 'locations'
-
-                    with open(os.path.join(locations_folder, building_name+'.pkl'), 'rb') as file:
-                        building_object = pickle.load(file)
-                        location.buildings.append(building_object)
-                    
-
-                elif current_attribute_idx == 4:
-                    stdscr.addstr(21, 2, "Enter name:")
-                    stdscr.refresh()
-                    file_name = ""
-                    while True:
-                        key = stdscr.getch()
-                        if key == 10:  # Enter key
-                            break
-                        elif key == 127:  # Backspace key
-                            file_name = file_name[:-1]
-                        else:
-                            file_name += chr(key)
-                        stdscr.addstr(22, 2, file_name.ljust(20))  # Display input text
-                        stdscr.refresh()
-                    save_location(location, file_name+".pkl")
-                
-                elif current_attribute_idx == 5:
-                    # Enter functionality to add connections
-                    stdscr.addstr(21, 2, "Enter connection direction (e.g., North, South, East, West):")
-                    stdscr.refresh()
-                    direction_input = ""
-                    while True:
-                        stdscr.addstr(22, 2, direction_input)
-                        stdscr.refresh()
-                        key = stdscr.getch()
-                        if key == curses.KEY_ENTER or key in [10, 13]:
-                            break
-                        elif key == curses.KEY_BACKSPACE:
-                            direction_input = direction_input[:-1]
-                        else:
-                            direction_input += chr(key)
-                        stdscr.addstr(21, 2, direction_input.ljust(60))  # Display input text
-                        stdscr.refresh()
-
-                    stdscr.addstr(21, 2, "Select connected location:")
-                    stdscr.refresh()
-                    # Define the folder where the location files are stored
-                    locations_folder = "locations"
-
-                   # Load all location objects
-                    locations = []
-                    for file_name in os.listdir(locations_folder):
-                        if file_name.endswith('.pkl'):
-                            with open(os.path.join(locations_folder, file_name), 'rb') as file:
-                                location_obj = pickle.load(file)
-                                locations.append(location_obj)
-
-                    # Display a menu to select a location
-                    current_y = 22
-                    selected_location = None
-                 
-                    prev_y = None  # Initialize prev_y
-                    while True:
-                        # Clear the previous y position if it's set
-                        if prev_y is not None:
-                            stdscr.move(prev_y, 2)
-                            stdscr.clrtoeol()
-
-                        # Redraw the list of locations with the selection cursor
-                        for idx, displayed_location in enumerate(locations):
-                            y = 22 + idx
-                            if y == current_y:
-                                stdscr.attron(curses.A_REVERSE)
-                                stdscr.addstr(y, 2, displayed_location.name)
-                                stdscr.attroff(curses.A_REVERSE)
-                            else:
-                                stdscr.addstr(y, 2, displayed_location.name)
-
-                        stdscr.refresh()
-
-                        key = stdscr.getch()
-
-                        if key == curses.KEY_UP and current_y > 22:
-                            prev_y = current_y  # Set prev_y before moving the cursor
-                            current_y -= 1
-                        elif key == curses.KEY_DOWN and current_y < 22 + len(locations) - 1:
-                            prev_y = current_y  # Set prev_y before moving the cursor
-                            current_y += 1
-                        elif key == curses.KEY_ENTER or key in [10, 13]:
-                            selected_location = locations[current_y - 22]
-                            break
-
-                    stdscr.addstr(21, 2, f"Connected location: {selected_location}")
-                    stdscr.refresh()
-
-                    stdscr.addstr(23, 2, "Enter travel days:")
-                    stdscr.refresh()
-                    travel_days_input = ""
-                    while True:
-                        stdscr.addstr(24, 2, travel_days_input)
-                        stdscr.refresh()
-                        key = stdscr.getch()
-                        if key == curses.KEY_ENTER or key in [10, 13]:
-                            break
-                        elif key == curses.KEY_BACKSPACE:
-                            travel_days_input = travel_days_input[:-1]
-                        else:
-                            travel_days_input += chr(key)
-                        stdscr.addstr(24, 2, travel_days_input.ljust(60))  # Display input text
-                        stdscr.refresh()
-
-                    stdscr.addstr(25, 2, "Enter travel description:")
-                    stdscr.refresh()
-                    travel_description_input = ""
-                    # while True:
-                    stdscr.addstr(26, 2, travel_description_input)
-                    stdscr.refresh()
-                    curses.echo()
-                    travel_description_input = stdscr.getstr(26, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
-                    stdscr.refresh()
-
-                    # Assuming you have a method to add connections in your Location class
-                    location.add_connection(direction_input.lower().strip(), selected_location, int(travel_days_input), int(0),travel_description_input)
-
-                    stdscr.clear()
-                elif current_attribute_idx == 6:
-                    stdscr.addstr(21, 2, "Enter overworld coordinates (comma-separated tuple):")
-                    stdscr.refresh()
-                    coord_input = ""
-                    while True:
-                        stdscr.addstr(22, 2, coord_input)
-                        stdscr.refresh()
-                        key = stdscr.getch()
-                        if key == curses.KEY_ENTER or key in [10, 13]:
-                            break
-                        elif key == curses.KEY_BACKSPACE:
-                            coord_input = buildings_input[:-1]
-                        else:
-                            coord_input += chr(key)
-                    location_cords = coord_input.split(",")
-                    location.overworld_cords = location_cords
-                elif current_attribute_idx == 7:
-                    stdscr.addstr(21, 2, "Enter NPC to add.")
-                    stdscr.refresh()
-                    npc_input = ""
-                    while True:
-                        stdscr.addstr(22, 2, npc_input)
-                        stdscr.refresh()
-                        key = stdscr.getch()
-                        if key == curses.KEY_ENTER or key in [10, 13]:
-                            break
-                        elif key == curses.KEY_BACKSPACE:
-                            npc_input = buildings_input[:-1]
-                        else:
-                            npc_input += chr(key)
-                    if npc_input == "clear":
-                        location.encounters = []
-                    else:
-                        location.encounters.append(npc_input)
-                elif current_attribute_idx == 8:
-                    in_menu = False
-
-                stdscr.clear()
-                break
-
 def create_enemy(stdscr):
     global npc
     in_menu = True
@@ -342,6 +158,7 @@ def create_enemy(stdscr):
             #npc = NPC(None, None, None, None, None, None, None, None)
             npc=NPC("", "", None, 0, 0, 0, 0, 0, '', False, 0, [], [], [])
 
+        # Replace curses calls with abstractions
         stdscr.clear()
         h, w = stdscr.getmaxyx()
 
@@ -350,6 +167,7 @@ def create_enemy(stdscr):
 
         # Display current enemy attributes
         try:
+            # Todo: Replace addstr calls with abstraction for appending lines
             stdscr.addstr(2, 2, "Current Enemy Attributes:")
             stdscr.addstr(3, 4, f"Name: {npc.name}")
             stdscr.addstr(4, 4, f"Description: {npc.description}")
@@ -370,315 +188,9 @@ def create_enemy(stdscr):
         except:
             continue
 
-        attributes = ["Name", "Description", "Strength", "Dexterity", "Intelligence", "Constitution", "Charisma", "NPC Type", "Hostility", "Dialog", "Rumors", "Room Rate", "Goods", "Dialog Trees", "Save", "Exit"]
-        current_attribute_idx = 0
-
-        while True:
-            for idx, attribute in enumerate(attributes):
-                x = 4
-                y = 18 + idx
-                if idx == current_attribute_idx:
-                    stdscr.attron(curses.A_REVERSE)
-                    try:
-                        stdscr.addstr(y, x, attribute)
-                    except:
-                        pass
-                    stdscr.attroff(curses.A_REVERSE)
-                else:
-                    try:
-                        stdscr.addstr(y, x, attribute)
-                    except:
-                        pass
-
-            stdscr.refresh()
-
-            key = stdscr.getch()
-
-            if key == curses.KEY_UP and current_attribute_idx > 0:
-                current_attribute_idx -= 1
-            elif key == curses.KEY_DOWN and current_attribute_idx < len(attributes) - 1:
-                current_attribute_idx += 1
-            elif key == curses.KEY_ENTER or key in [10, 13]:
-                if current_attribute_idx == 0:
-                    try:
-                        stdscr.addstr(32, 2, "Enter name:")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    npc.name = ""
-                    while True:
-                        key = stdscr.getch()
-                        if key == 10:  # Enter key
-                            break
-                        elif key == 127:  # Backspace key
-                            npc.name = npc.name[:-1]
-                        else:
-                            npc.name += chr(key)
-                        try:
-                            stdscr.addstr(33, 2, npc.name.ljust(20))  # Display input text
-                        except:
-                            pass
-                        stdscr.refresh()
-                elif current_attribute_idx == 1:
-                    try:
-                        stdscr.addstr(32, 2, "Enter description:")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    npc.description = ""
-                    while True:
-                        key = stdscr.getch()
-                        if key == 10:  # Enter key
-                            break
-                        elif key == 127:  # Backspace key
-                            npc.description = npc.description[:-1]
-                        else:
-                            npc.description += chr(key)
-                        try:
-                            stdscr.addstr(33, 2, npc.description.ljust(60))  # Display input text
-                        except:
-                            pass
-                        stdscr.refresh()
-                elif current_attribute_idx == 2:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy strength:")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    strength_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    try:
-                        stdscr.addstr(34, 2, f"You entered: {strength_input}")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.strength = strength_input.strip()
-                
-                elif current_attribute_idx == 3:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy dexterity:")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    dexterity_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    try:
-                        stdscr.addstr(34, 2, f"You entered: {dexterity_input}")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.dexterity = dexterity_input.strip()
-
-
-                elif current_attribute_idx == 4:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy intelligence:")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    intelligence_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    try:
-                        stdscr.addstr(34, 2, f"You entered: {intelligence_input}")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.intelligence = intelligence_input.strip()
-                elif current_attribute_idx == 5:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy constitution:")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    constitution_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    try:
-                        stdscr.addstr(34, 2, f"You entered: {constitution_input}")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.constitution = constitution_input.strip()
-                elif current_attribute_idx == 6:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy charisma:")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    charisma_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    try:
-                        stdscr.addstr(34, 2, f"You entered: {charisma_input}")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.charisma = charisma_input.strip()
-
-                elif current_attribute_idx == 7:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy NPC Type:")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    npc_type_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    try:
-                        stdscr.addstr(34, 2, f"You entered: {npc_type_input}")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.npc_type = npc_type_input.strip()
-
-                elif current_attribute_idx == 8:
-                    try:
-                        stdscr.addstr(32, 2, "Is NPC hostile?  (yes/no):")
-                    except:
-                        pass
-                    stdscr.refresh()
-
-                    hostility_input = stdscr.getstr(33, 2, 5).decode(encoding="utf-8").lower()
-                    if hostility_input == 'yes':
-                        npc.hostile = True
-                        try:
-                            stdscr.addstr(34, 2, f"NPC is hostile")
-                        except:
-                            continue
-                    elif hostility_input == 'no':
-                        npc.hostile = False
-                        try:
-                            stdscr.addstr(34, 2, f"NPC is non-hostile")
-                        except:
-                            continue
-                    else:
-                        try:
-                            stdscr.addstr(34, 2, f"Please enter a valid input (yes/no)")
-                        except:
-                            continue
-                    
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    
-                
-                elif current_attribute_idx == 9:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy dialog as ~ delimited strings:")
-                    except:
-                        pass
-                    stdscr.refresh()
-                    try:
-                        dialog_input = list(stdscr.getstr(33, 2, 320).decode(encoding="utf-8").split('~'))
-                        try:
-                            stdscr.addstr(34, 2, f"Parsed dialog input: {dialog_input}")
-                        except:
-                            pass
-
-                    except TypeError:
-                        try:
-                            stdscr.addstr(34, 2, f"Unable to parse dialog entered")
-                        except:
-                            continue
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.dialog = dialog_input
-
-                elif current_attribute_idx == 10:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy rumors as ~ delimited strings (keep it appropriate):")
-                    except:
-                        continue
-                    stdscr.refresh()
-
-                    rumors_input = list(stdscr.getstr(33, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").split('~'))
-                    try:
-                        stdscr.addstr(34, 2, f"You entered: {rumors_input}")
-                    except:
-                        continue
-
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.rumors = rumors_input
-
-                elif current_attribute_idx == 11:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy room rate:")
-                    except:
-                        continue
-                    stdscr.refresh()
-                    try:
-                        room_rate_input = int(stdscr.getstr(33, 2, 5).decode(encoding="utf-8"))
-                        try:
-                            stdscr.addstr(34, 2, f"You entered: {room_rate_input}")
-                        except:
-                            continue
-                    except TypeError:
-                        try:
-                            stdscr.addstr(34, 2, f"Please enter integer value")
-                        except:
-                            continue
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.room_rate = room_rate_input
-                
-                elif current_attribute_idx == 12:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy default goods, delimited by ~:")
-                    except:
-                        continue
-                    stdscr.refresh()
-
-                    goods_input = stdscr.getstr(33, 2, 128).decode(encoding="utf-8").split('~')
-                    try:
-                        stdscr.addstr(34, 2, f"You entered: {goods_input}")
-                    except:
-                        continue
-
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.goods = goods_input
-
-                elif current_attribute_idx == 13:
-                    try:
-                        stdscr.addstr(32, 2, "Enter enemy dialog trees:")
-                    except:
-                        continue
-                    stdscr.refresh()
-
-                    dialog_trees_input = stdscr.getstr(33, 2, 320).decode(encoding="utf-8").lower()
-                    try:
-                        stdscr.addstr(34, 2, f"You entered: {dialog_trees_input}")
-                    except:
-                        continue
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    npc.dialog_trees = dialog_trees_input
-
-                elif current_attribute_idx == 14:
-                    try:
-                        stdscr.addstr(32, 2, "Enter save name for enemy:")
-                    except:
-                        continue
-                    stdscr.refresh()
-                    file_name = ""
-                    while True:
-                        key = stdscr.getch()
-                        if key == 10:  # Enter key
-                            break
-                        elif key == 127:  # Backspace key
-                            file_name = file_name[:-1]
-                        else:
-                            file_name += chr(key)
-                        
-                        try:
-                            stdscr.addstr(34, 2, file_name.ljust(20))  # Display input text
-                        except:
-                            continue
-                        stdscr.refresh()
-                    save_enemy(npc, file_name+".pkl")
-                elif current_attribute_idx == 15:
-                    in_menu = False
-
-                stdscr.clear()
-                break
-
+        attributes = ["Name", "Description", "Strength", "Dexterity", "Intelligence", "Constitution", "Charisma", "NPC Type", "Hostility", "Dialog", "Rumors", "Room Rate", "Goods", "Dialog Trees", "Load", "Save", "Exit"]
+        
+        in_menu = modify_attributes(attributes, stdscr, npc)
 
 
 def create_building(stdscr):
@@ -697,93 +209,515 @@ def create_building(stdscr):
 
         # Display current building attributes
         stdscr.addstr(2, 2, "Current Building Attributes:")
-        stdscr.addstr(3, 4, f"Name: {building.name}")
-        stdscr.addstr(4, 4, f"Building Type: {building.building_type}")
-        stdscr.addstr(5, 4, f"Description: {building.description}")
-        stdscr.addstr(6, 4, f"NPCs in Building: {building.npcs}")
+        
+        curses_append_line(stdscr, f"Name: {building.name}")
+        curses_append_line(stdscr, f"Building Type: {building.building_type}")
+        curses_append_line(stdscr, f"Description: {building.description}")
+        curses_append_line(stdscr, f"NPCs in Building: {building.npcs}")
 
         stdscr.addstr(16, 2, "Select an attribute to edit (Press Enter to confirm):")
 
-        attributes = ["Name", "Building Type", "Description", "NPCs in Building", "Save", "Exit"]
-        current_attribute_idx = 0
+        attributes = ["Name", "Building Type", "Description", "NPCs in Building", "Load", "Save", "Exit"]
+       
+        in_menu = modify_attributes(attributes, stdscr, building)
 
-        while True:
-            for idx, attribute in enumerate(attributes):
-                x = 4
-                y = 8 + idx
-                if idx == current_attribute_idx:
-                    stdscr.attron(curses.A_REVERSE)
-                    stdscr.addstr(y, x, attribute)
-                    stdscr.attroff(curses.A_REVERSE)
-                else:
-                    stdscr.addstr(y, x, attribute)
 
+def create_item(stdscr):
+    global item
+    in_menu = True
+
+    while in_menu:
+        if item is None:
+            item=Item("", "", "", "", "", "", "")
+
+        # Replace curses calls with abstractions
+        stdscr.clear()
+        h, w = stdscr.getmaxyx()
+
+        title = "Create Item"
+        stdscr.addstr(0, w//2 - len(title)//2, title)
+
+        # Display current item attributes
+        stdscr.addstr(2, 2, "Current Item Attributes:")
+        
+        curses_append_line(stdscr, f"Name: {item.name}")
+        curses_append_line(stdscr, f"Description: {item.description}")
+        curses_append_line(stdscr, f"Item Type: {item.item_type}")
+        curses_append_line(stdscr, f"Item Effect: {item.effect}")
+        curses_append_line(stdscr, f"Item Effect Stat: {item.effect_stat}")
+        curses_append_line(stdscr, f"Item Target: {item.target}")
+        curses_append_line(stdscr, f"Item Consumable Status: {item.consumable}")
+
+        stdscr.addstr(16, 2, "Select an attribute to edit (Press Enter to confirm):")
+
+        attributes = ["Name", "Description", "Item Type", "Effect", "Effect Stat", "Target", "Consumable", "Load", "Save", "Exit"]
+       
+        in_menu = modify_attributes(attributes, stdscr, item)
+
+def location_attribute_modifier(current_attribute_name: str, stdscr: any, location: Location):
+    y = get_y_pos(stdscr)
+    if current_attribute_name == 'Name':
+        location_name_input = curses_editor_input(stdscr, "Enter Location Name:")
+        location.name = location_name_input
+
+    elif current_attribute_name == 'Description':
+        location_description_input = curses_editor_input(stdscr, "Enter Location Description:")
+        location.description = location_description_input
+
+    elif current_attribute_name == 'Is Town':
+        stdscr.addstr(y+1, 2, "Is town? (t/f, Press Enter):")
+        stdscr.refresh()
+        is_town_input = stdscr.getstr(y+2, 2, 5).decode(encoding="utf-8").lower()
+        stdscr.addstr(y+3, 2, f"You entered: {is_town_input}")
+        stdscr.refresh()
+        stdscr.getstr()
+        location.is_town = is_town_input.strip().lower() == "t"
+    
+    elif current_attribute_name == 'Buildings':
+        building_input = curses_editor_input(stdscr, f"Enter name of building to attach to location {location.name}")
+        
+        building_name = building_input
+        locations_folder = 'locations'
+
+        try:
+            with open(os.path.join(locations_folder, building_name+'.pkl'), 'rb') as file:
+                building_object = pickle.load(file)
+                location.buildings.append(building_object)
+        except FileNotFoundError:
+            stdscr.move(y+1,2)
+            stdscr.clrtobot()
+            stdscr.addstr(y+1, 2, f"Error: path {locations_folder}/{building_name}.pkl not found...")
             stdscr.refresh()
+            time.sleep(1)
+            return
+            
 
-            key = stdscr.getch()
+    elif current_attribute_name == 'Save':
+        save_handler('location', stdscr, location)
+        location.name = ''
+        location.description = ''
+        location.is_town = False
+        location.buildings = []
+        location.connections = {}
+        location.overworld_cords = []
+        location.encounters = []
 
-            if key == curses.KEY_UP and current_attribute_idx > 0:
-                current_attribute_idx -= 1
-            elif key == curses.KEY_DOWN and current_attribute_idx < len(attributes) - 1:
-                current_attribute_idx += 1
-            elif key == curses.KEY_ENTER or key in [10, 13]:
-                if current_attribute_idx == 0:
-                    stdscr.addstr(17, 2, "Enter Building Name:")
-                    stdscr.refresh()
-                    curses.echo()
-                    building_name_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
-                    stdscr.addstr(19, 2, f"You entered: {building_name_input}")
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    building.name = building_name_input.strip()
-                elif current_attribute_idx == 1:
-                    stdscr.addstr(17, 2, "Enter Building Type:")
-                    stdscr.refresh()
-                    curses.echo()
-                    building_type_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
-                    stdscr.addstr(19, 2, f"You entered: {building_type_input}")
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    building.building_type = building_type_input.strip()
-                elif current_attribute_idx == 2:
-                    stdscr.addstr(17, 2, "Enter Description:")
-                    stdscr.refresh()
-                    description_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
-                    stdscr.addstr(19, 2, f"You entered: {description_input}")
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    building.description = description_input.strip()
-                
-                elif current_attribute_idx == 3:
-                    stdscr.addstr(17, 2, "Enter NPCs in building as ~ delimited strings:")
-                    stdscr.refresh()
-                    curses.echo()
-                    npcs_input = stdscr.getstr(18, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8").lower()
-                    stdscr.addstr(19, 2, f"You entered: {npcs_input}")
-                    stdscr.refresh()
-                    stdscr.getstr()
-                    building.npcs = npcs_input.split('~')
+    elif current_attribute_name == 'Load':
+        pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
+        pkl_name = f'{pkl_name_input}.pkl'
+        loaded_location = load_pkl('location', pkl_name)
+        if loaded_location != False:
+            location.name = loaded_location.name
+            location.description = loaded_location.description
+            location.is_town = loaded_location.is_town
+            location.buildings = loaded_location.buildings
+            location.connections = loaded_location.connections
+            location.overworld_cords = loaded_location.overworld_cords
+            location.encounters = loaded_location.encounters
+        else:
+            curses_append_line(stdscr, "Error, could not load file")
+            time.sleep(1)
 
-                elif current_attribute_idx == 4:
-                    stdscr.addstr(17, 2, "Enter save name for building:")
-                    stdscr.refresh()
-                    file_name = ""
-                    while True:
-                        key = stdscr.getch()
-                        if key == 10:  # Enter key
-                            break
-                        elif key == 127:  # Backspace key
-                            file_name = file_name[:-1]
-                        else:
-                            file_name += chr(key)
-                        stdscr.addstr(18, 2, file_name.ljust(20))  # Display input text
-                        stdscr.refresh()
-                    save_building(building, file_name+".pkl")
-                elif current_attribute_idx == 5:
-                    in_menu = False
 
-                stdscr.clear()
-                break
+
+    elif current_attribute_name == 'Connections':
+        # Enter functionality to add connections
+        direction_input = curses_editor_input(stdscr, "Enter connection direction (e.g., North, South, East, West):", suppress_echo=True)
+
+        stdscr.move(get_y_pos(stdscr)-2, get_x_pos(stdscr))
+        stdscr.clrtobot()
+        stdscr.move(get_y_pos(stdscr)-1, get_x_pos(stdscr))
+        curses_append_line(stdscr, "Select connected location:", increment=False, indent=False)
+        stdscr.refresh()
+
+        # Define the folder where the location files are stored
+        locations_folder = "locations"
+
+        # Load all location objects
+        locations = []
+        for file_name in os.listdir(locations_folder):
+            if file_name.endswith('.pkl'):
+                with open(os.path.join(locations_folder, file_name), 'rb') as file:
+                    location_obj = pickle.load(file)
+                    locations.append(location_obj)
+
+        selected_location = scrollabe_menu(stdscr, locations)
+
+        stdscr.addstr(y+1, 2, f"Connected location: {selected_location}")
+        stdscr.clrtobot()
+        stdscr.refresh()
+
+
+        travel_days_input = curses_editor_input(stdscr, "Enter travel days:", clean=True)
+        travel_description_input = curses_editor_input(stdscr, "Enter travel description:")
+
+        # Assuming you have a method to add connections in your Location class
+        location.add_connection(direction_input.lower().strip(), selected_location, int(travel_days_input), int(0),travel_description_input)
+
+        stdscr.clear()
+
+    elif current_attribute_name == 'Overworld Coords':
+        coord_input = curses_editor_input(stdscr, "Enter overworld coordinates (comma-separated tuple):")
+        location_cords = coord_input.split(",")
+        location.overworld_cords = location_cords
+
+    elif current_attribute_name == 'Encounters':
+        npc_input = curses_editor_input(stdscr, "Enter NPC to add:")
+        if npc_input == "clear":
+            location.encounters = []
+        else:
+            location.encounters.append(npc_input)
+
+    elif current_attribute_name == 'Exit':
+        stdscr.clear()
+        return False
+    
+    stdscr.clear()
+    return True
+
+
+def npc_attribute_modifier(current_attribute_name: str, stdscr: any, npc: NPC):
+
+    if current_attribute_name == 'Name':
+        npc_name_input = curses_editor_input(stdscr, "Enter NPC name:")
+        npc.name = npc_name_input
+
+    elif current_attribute_name == 'Description':
+        npc_description_input = curses_editor_input(stdscr, "Enter NPC description:")
+        npc.description = npc_description_input
+
+    elif current_attribute_name == 'Strength':
+        strength_input = curses_editor_input(stdscr, "Enter enemy strength:")
+        npc.strength = strength_input.strip()
+    
+    elif current_attribute_name == 'Dexterity':
+        dexterity_input = curses_editor_input(stdscr, "Enter enemy dexterity:")
+        npc.dexterity = dexterity_input.strip()
+
+    elif current_attribute_name == 'Intelligence':
+        intelligence_input = curses_editor_input(stdscr, "Enter enemy intelligence:")
+        npc.intelligence = intelligence_input.strip()
+
+    elif current_attribute_name == 'Constitution':
+        constitution_input = curses_editor_input(stdscr, "Enter enemy constitution:")
+        npc.constitution = constitution_input.strip()
+
+    elif current_attribute_name == 'Charisma':
+        charisma_input = curses_editor_input(stdscr, "Enter enemy charisma:")
+        npc.charisma = charisma_input.strip()
+
+    elif current_attribute_name == 'NPC Type':
+        npc_type_input = curses_editor_input(stdscr, "Enter enemy NPC Type:")
+        npc.npc_type = npc_type_input.strip()
+
+    elif current_attribute_name == 'Hostility':
+        hostility_input = curses_editor_input(stdscr, "Is NPC hostile?  (yes/no):", suppress_echo=True)
+        if hostility_input == 'yes':
+            npc.hostile = True
+            curses_append_line(stdscr, "NPC is hostile")
+        elif hostility_input == 'no':
+            npc.hostile = False
+            curses_append_line(stdscr, "NPC is non-hostile")
+        else:
+            curses_append_line(stdscr, "Please enter a valid input (yes/no)")
+        
+        stdscr.refresh()
+        stdscr.getstr()
+        
+    
+    elif current_attribute_name == 'Dialog':
+        dialog_input = curses_editor_input(stdscr, "Enter enemy dialog as ~ delimited strings:")
+        npc.dialog = dialog_input.split('~')
+
+    elif current_attribute_name == 'Rumors':
+        rumors_input = curses_editor_input(stdscr, "Enter enemy rumors as ~ delimited strings:")
+        npc.rumors = rumors_input.split('~')
+
+    elif current_attribute_name == 'Room Rate':
+        room_rate_input = curses_editor_input(stdscr, "Enter enemy room rate:")
+        npc.room_rate = room_rate_input
+    
+    elif current_attribute_name == 'Goods':
+        goods_input = curses_editor_input(stdscr, "Enter enemy default goods, delimited by ~:")
+        npc.goods = goods_input.split('~')
+
+    elif current_attribute_name == 'Dialog Trees':
+        dialog_trees_input = curses_editor_input(stdscr, "Enter enemy dialog trees:")
+        npc.dialog_trees = dialog_trees_input
+
+    elif current_attribute_name == 'Load':
+        pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
+        pkl_name = f'{pkl_name_input}.pkl'
+        loaded_npc = load_pkl('npc', pkl_name)
+        if loaded_npc != False:
+            npc.name = loaded_npc.name
+            npc.description = loaded_npc.description
+            npc.dexterity = loaded_npc.dexterity
+            npc.intelligence = loaded_npc.intelligence
+            npc.constitution = loaded_npc.constitution
+            npc.charisma = loaded_npc.charisma
+            npc.npc_type = loaded_npc.npc_type
+            npc.hostile = loaded_npc.hostile
+            npc.dialog = loaded_npc.dialog
+            npc.rumors = loaded_npc.rumors
+            npc.room_rate = loaded_npc.room_rate
+            npc.goods = loaded_npc.goods
+            npc.dialog_trees = loaded_npc.dialog_trees
+        else:          
+            curses_append_line(stdscr, "Error, could not load file")
+            time.sleep(1)
+
+
+    elif current_attribute_name == 'Save':
+        save_handler('npc', stdscr, npc)
+        
+
+    elif current_attribute_name == 'Exit':
+        stdscr.clear()
+        return False
+
+    stdscr.clear()
+    return True
+
+
+def building_attribute_modifier(current_attribute_name: str, stdscr: any, building: Building):
+    if current_attribute_name == 'Name':
+        building_name_input = curses_editor_input(stdscr, "Enter Building Name:")
+        building.name = building_name_input.strip()
+
+    elif current_attribute_name == 'Building Type':
+        building_type_input = curses_editor_input(stdscr, "Enter Building Type:")
+        building.building_type = building_type_input.strip()
+
+    elif current_attribute_name == 'Description':
+        description_input = curses_editor_input(stdscr, "Enter Building Description:")
+        building.description = description_input.strip()
+
+    elif current_attribute_name == 'NPCs in Building':
+        npcs_input = curses_editor_input(stdscr, "Enter NPCs in building as ~ delimited strings:")
+        building.npcs = npcs_input.split('~')
+
+    elif current_attribute_name == 'Load':
+        pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
+        pkl_name = f'{pkl_name_input}.pkl'
+        loaded_building = load_pkl('building', pkl_name)
+        if loaded_building != False:
+            building.name = loaded_building.name
+            building.description = loaded_building.description
+            building.building_type = loaded_building.building_type
+            building.npcs = loaded_building.npcs
+        else:
+            curses_append_line(stdscr, "Error, could not load file")
+            time.sleep(1)
+
+    elif current_attribute_name == 'Save':
+        save_handler('building', stdscr, building)
+
+    elif current_attribute_name == 'Exit':
+        stdscr.clear()
+        return False
+    
+    stdscr.clear()
+    return True
+
+def item_attribute_modifier(current_attribute_name: str, stdscr: any, item: Item):
+
+    if current_attribute_name == 'Name':
+        item_name_input = curses_editor_input(stdscr, "Enter Item Name:")
+        item.name = item_name_input
+
+    elif current_attribute_name == 'Description':
+        item_description_input = curses_editor_input(stdscr, "Enter Item Description:")
+        item.description = item_description_input
+
+    elif current_attribute_name == 'Item Type':
+        item_type_input = curses_editor_input(stdscr, "Enter item type ('Weapon', 'Armor', 'Position')")
+        item.item_type = item_type_input
+
+    elif current_attribute_name == 'Effect':
+        item_effect_input = curses_editor_input(stdscr, "Enter Item Effect:")
+        item.effect = item_effect_input
+
+    elif current_attribute_name == 'Effect Stat':
+        item_effect_stat_input = curses_editor_input(stdscr, "Enter the Correlated Player Stat:")
+        item.effect_stat = item_effect_stat_input
+
+    elif current_attribute_name == 'Target':
+        item_target_input = curses_editor_input(stdscr, "The target of the item ('player', 'npc', 'both')")
+        item.target = item_target_input
+
+    elif current_attribute_name == 'Consumable':
+        item_consumable_input = curses_editor_input(stdscr, "Is the item single/fixed use or infinite?")
+        item.consumable = item_consumable_input
+
+    elif current_attribute_name == 'Load':
+        pkl_name_input = curses_editor_input(stdscr, 'Enter the name of the input file:').rstrip('.pkl')
+        pkl_name = f'{pkl_name_input}.pkl'
+        loaded_item = load_pkl('item', pkl_name)
+        if loaded_item != False:
+            item.name = loaded_item.name
+            item.description = loaded_item.description
+            item.item_type = loaded_item.item_type
+            item.effect = loaded_item.effect
+            item.effect_stat = loaded_item.effect_stat
+            item.target = loaded_item.target
+            item.consumable = loaded_item.consumable
+        else:
+            curses_append_line(stdscr, "Error, could not load file")
+            time.sleep(1)
+
+    elif current_attribute_name == 'Save':
+        save_handler('item', stdscr, item)
+
+    elif current_attribute_name == 'Exit':
+        stdscr.clear()
+        return False
+    
+    stdscr.clear()
+    return True
+
+"""! Scrollable menus
+
+@param stdscr The curses window object
+
+@return The selected menu object
+"""
+def scrollabe_menu(stdscr: any, menu_objects: any, title=False):
+    # Display a menu to select menu 
+    if title == False:
+        init_y = get_y_pos(stdscr)+1
+        #init_x = get_x_pos(stdscr)
+        init_x = 2
+    else:
+        h, w = stdscr.getmaxyx()
+        init_x = w//2
+        init_y = h//2 - len(menu_objects)//2
+    current_y = init_y
+    selected_object = None
+    
+    prev_y = None  # Initialize prev_y
+    while True:
+        # Clear the previous y position if it's set
+        if prev_y is not None:
+            stdscr.move(prev_y, 2)
+            stdscr.clrtoeol()
+
+        # Redraw the list of objects with the selection cursor
+        for idx, displayed_object in enumerate(menu_objects):
+            y_cur_idx = init_y + idx
+            x = init_x
+            if title == True:
+                x = init_x - len(displayed_object)//2
+            if y_cur_idx == current_y:
+                stdscr.attron(curses.A_REVERSE)
+
+                try:
+                    stdscr.addstr(y_cur_idx, x, displayed_object.name)
+                except AttributeError:
+                    stdscr.addstr(y_cur_idx, x, displayed_object)
+                stdscr.attroff(curses.A_REVERSE)
+            else:
+                try:
+                    stdscr.addstr(y_cur_idx, x, displayed_object.name)
+                except AttributeError:
+                    stdscr.addstr(y_cur_idx, x, displayed_object)
+
+        stdscr.refresh()
+
+        key = stdscr.getch()
+
+        if key == curses.KEY_UP and current_y > init_y:
+            prev_y = current_y  # Set prev_y before moving the cursor
+            current_y -= 1
+        elif key == curses.KEY_DOWN and current_y < init_y + len(menu_objects) - 1:
+            prev_y = current_y  # Set prev_y before moving the cursor
+            current_y += 1
+        elif key == curses.KEY_ENTER or key in [10, 13]:
+            selected_object = menu_objects[current_y - init_y]
+            break
+    return selected_object
+
+"""! Abstraction to get most recently
+     written line from the curses
+     window object
+
+@param stdscr The curses window object
+
+@return Current integer cursor line number
+"""
+
+
+"""! Abstraction to get current character
+     position within a line of the curses
+     window object
+
+@param stdscr The curses window object
+
+@return Current integer cursor position
+"""
+def get_x_pos(stdscr: any) -> int:
+    return int(stdscr.getyx()[1])
+
+"""! Abstraction to get most recently
+     written line from the curses
+     window object
+
+@param stdscr The curses window object
+
+@return Current integer cursor line number
+"""
+def get_y_pos(stdscr: any) -> int:
+    return int(stdscr.getyx()[0])
+
+"""! Abstraction to write new-line using curses
+     Appends text on new line after most recently
+     written line
+
+@param stdscr    The curses window object
+@param out_str   The string to be appended to the screen
+@param increment Write string on next line?
+
+@return Success status (True/False)
+"""
+def curses_append_line(stdscr: any, out_str: str, increment=True, indent=True) -> bool:
+    try:
+        y = get_y_pos(stdscr)
+        if increment == True:
+            y=y+1
+        if indent == True:
+            x=4
+        else:
+            x=2
+        stdscr.addstr(y, x, out_str)
+        return True
+    except:
+        return False
+
+"""! Abstraction to prompt user and store response
+
+@param stdscr  The curses window object
+@param prompt  The question/prompt that the user is responding to
+@param suppress_echo  Don't echo back to user what they typed
+@param clean   Remove the prompt/response from screen after we're done
+
+@return Raw user input decoded as a utf-8 string
+"""
+def curses_editor_input(stdscr: any, prompt: str, suppress_echo=False, clean=False) -> str:
+    y = get_y_pos(stdscr)
+    x = get_x_pos(stdscr)
+    stdscr.addstr(y+1, 2, prompt)
+    stdscr.refresh()
+    curses.echo()
+    user_input = stdscr.getstr(y+2, 2, MAX_STR_INPUT_CHARS).decode(encoding="utf-8")
+    if suppress_echo == False:  # Echo user input
+        stdscr.addstr(y+3, 2, f"You entered: {user_input}")
+        stdscr.refresh()
+        # stdscr.getstr()
+        time.sleep(ECHO_PERSIST_DELAY_S)
+    if clean == True:
+        stdscr.move(y,x)
+        stdscr.clrtobot()
+    return user_input
 
 def main(stdscr):
     os.system(f'mode 200,60')
@@ -796,21 +730,7 @@ def main(stdscr):
     current_row = 0
 
     while True:
-        draw_menu(stdscr, current_row)
-        key = stdscr.getch()
-
-        if key == curses.KEY_UP and current_row > 0:
-            current_row -= 1
-        elif key == curses.KEY_DOWN and current_row < 3:
-            current_row += 1
-        elif key == curses.KEY_ENTER or key in [10, 13]:
-            if current_row == 0:
-                create_location(stdscr)
-            elif current_row == 1:
-                create_enemy(stdscr)
-            elif current_row == 2:
-                create_building(stdscr)
-            elif current_row == 3:
-                break
+        if draw_menu(stdscr, current_row) == True:
+            break
 
 curses.wrapper(main)
