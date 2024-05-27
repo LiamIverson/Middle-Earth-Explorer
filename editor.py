@@ -101,7 +101,7 @@ def draw_menu(stdscr, selected_row_idx):
     else:
         stdscr.addstr(2, 2, "No location created yet.")
 
-    menu_items = ["Create Location", "Create Enemy", "Create Building", "Create Item", "Exit"]
+    menu_items = ["Create Location", "Create Enemy", "Create Building", "Create Item", "Load Location", "Exit"]
     result = scrollabe_menu(stdscr, menu_items, title=True)
     if result == 'Create Location':
         create_location(stdscr)
@@ -111,6 +111,8 @@ def draw_menu(stdscr, selected_row_idx):
         create_building(stdscr)
     elif result == 'Create Item':
         create_item(stdscr)
+    elif result == 'Load Location':
+        select_location(stdscr)
     elif result == 'Exit':
         return True
 
@@ -146,7 +148,57 @@ def create_location(stdscr):
 
         in_menu = modify_attributes(attributes, stdscr, location)
 
+
+
+
+def select_location(stdscr):
+    global location
+    # Load all location objects
+    locations = []
+    locations_folder = "locations"
+    for file_name in os.listdir(locations_folder):
+        if file_name.endswith('.pkl'):
+            with open(os.path.join(locations_folder, file_name), 'rb') as file:
+                location_obj = pickle.load(file)
+                locations.append(location_obj)
+
+    # Display a menu to select a location
+    current_y = 22
+    selected_location = None
+
+    prev_y = None  # Initialize prev_y
+    while True:
+        # Clear the previous y position if it's set
+        if prev_y is not None:
+            stdscr.move(prev_y, 2)
+            stdscr.clrtoeol()
+
+        # Redraw the list of locations with the selection cursor
+        for idx, displayed_location in enumerate(locations):
+            y = 22 + idx
+            if y == current_y:
+                stdscr.attron(curses.A_REVERSE)
+                stdscr.addstr(y, 2, displayed_location.name)
+                stdscr.attroff(curses.A_REVERSE)
+            else:
+                stdscr.addstr(y, 2, displayed_location.name)
+
+        stdscr.refresh()
+
+        key = stdscr.getch()
+
+        if key == curses.KEY_UP and current_y > 22:
+            prev_y = current_y  # Set prev_y before moving the cursor
+            current_y -= 1
+        elif key == curses.KEY_DOWN and current_y < 22 + len(locations) - 1:
+            prev_y = current_y  # Set prev_y before moving the cursor
+            current_y += 1
+        elif key == curses.KEY_ENTER or key in [10, 13]:
+            selected_location = locations[current_y - 22]
+            break
         
+    location = selected_location
+     
                 
 def create_enemy(stdscr):
     global npc
