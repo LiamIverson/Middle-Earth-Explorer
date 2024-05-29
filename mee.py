@@ -125,8 +125,12 @@ def create_world():
     # Load all locations from files
     all_locations = load_locations()
 
-    regions = [Location("Plains", "A wide open plain with some smalls hills and tiny clusters of small wood.")]
- 
+    #regions = [Location("Plains", "A wide open plain with some smalls hills and tiny clusters of small wood.")]
+    
+    # Load Regions
+
+    regions = load_regions('regions/regions.txt')
+
     # Add locations to game map
     for location in all_locations:
         game_map.append(location)
@@ -157,14 +161,21 @@ def march(player):
     player.overworld_y = int(player.overworld_y) + direction_mod[1]
 
     overworld_location = over_world[player.overworld_x][player.overworld_y]
+    overworld_coords = (player.overworld_x, player.overworld_y)
 
     player.hunger += 1
     player.exhaustion += 1
     
-    if overworld_location in region_types:
-        return regions[overworld_location]
-    else:
-        return overworld_location
+    #Updates this to use the new region logic
+
+    for i in regions:
+        if overworld_coords in i["coordinates"]:
+            return i["location"]
+
+    # if overworld_location in region_types:
+    #     return regions[overworld_location]
+    # else:
+    #     return overworld_location
 
 
 def travel(num_days, player, encounter_chance, travel_description,encounters,direction,connected_location):
@@ -252,10 +263,8 @@ def main():
     player.overworld_x = current_location.overworld_cords[0]
     player.overworld_y = current_location.overworld_cords[1]
 
-    # Example usage
-    regions = load_regions('regions/regions.txt')
-    print(regions)
-    input()
+
+
     while True:
         player.update_stats()
         disp({'player': player.display_stats})        # ToDo: Don't pass 'player' here, pass stats object
