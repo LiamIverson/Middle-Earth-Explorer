@@ -171,6 +171,7 @@ def march(player):
     for i in regions:
         if overworld_coords in i["coordinates"]:
             return i["location"]
+    return Location("Plains", "A wide open plain with some smalls hills and tiny clusters of small wood.")
 
     # if overworld_location in region_types:
     #     return regions[overworld_location]
