@@ -1,4 +1,4 @@
-import os, random, pickle, time
+import os, random, pickle, time, re
 from display import Display as disp
 
 from player import Player
@@ -78,6 +78,29 @@ def load_locations():
     return locations
 
 
+
+def load_regions(file_path):
+    regions = {}
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    
+    region_name = None
+    for line in lines:
+        line = line.strip()
+        if line.startswith('Region'):
+            region_name = line
+            regions[region_name] = {'coordinates': [], 'location': ''}
+        elif line.startswith('Location:'):
+            location = line.split(': ')[1]
+            if region_name:
+                regions[region_name]['location'] = location
+        elif line.startswith('Coordinates:'):
+            coordinates = re.findall(r'\((\d+),(\d+)\)', line)
+            coordinates = [(int(x), int(y)) for x, y in coordinates]
+            if region_name:
+                regions[region_name]['coordinates'] = coordinates
+
+    return regions
 
 
 def create_world():
@@ -229,6 +252,10 @@ def main():
     player.overworld_x = current_location.overworld_cords[0]
     player.overworld_y = current_location.overworld_cords[1]
 
+    # Example usage
+    regions = load_regions('regions/regions.txt')
+    print(regions)
+    input()
     while True:
         player.update_stats()
         disp({'player': player.display_stats})        # ToDo: Don't pass 'player' here, pass stats object
