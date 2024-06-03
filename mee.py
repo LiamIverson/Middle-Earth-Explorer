@@ -170,7 +170,19 @@ def march(player):
 
     for i in regions:
         if overworld_coords in i["coordinates"]:
-            return i["location"]
+            # Get the location name
+            location_name = i["location"]
+            
+            # Construct the file path
+            file_path = f"generic_location/{location_name}.pkl"
+            
+            # Load the object from the .pkl file
+            with open(file_path, 'rb') as file:
+                location_object = pickle.load(file)
+            
+            # Return the loaded location object
+            return location_object
+            
     return Location("Plains", "A wide open plain with some smalls hills and tiny clusters of small wood.")
 
     # if overworld_location in region_types:
