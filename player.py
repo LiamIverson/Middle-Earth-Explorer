@@ -2,7 +2,7 @@ class Player:
     def __init__(self, name, strength, dexterity, intelligence):
         self.name = name
         self.location = None
-        self.inventory = {'food': 10, 'wood':0, 'gold':0, 'left arm':None,"right arm":None, "chest":None,"head":None, "backpack":[]}  # Starting with 10 units of food
+        self.inventory = {'food': 10, 'wood':0, 'gold':0, "legs":None, "chest":None,"head":None, "backpack":[]}  # Starting with 10 units of food
         self.health = 20
         self.hunger = 0
         self.exhaustion = 0

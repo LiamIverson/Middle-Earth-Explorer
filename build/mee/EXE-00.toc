@@ -98,6 +98,9 @@
   ('unicodedata.pyd',
    'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python310\\DLLs\\unicodedata.pyd',
    'EXTENSION'),
+  ('yaml\\_yaml.cp310-win_amd64.pyd',
+   'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\yaml\\_yaml.cp310-win_amd64.pyd',
+   'EXTENSION'),
   ('PIL\\_webp.cp310-win_amd64.pyd',
    'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\PIL\\_webp.cp310-win_amd64.pyd',
    'EXTENSION'),
@@ -173,7 +176,7 @@
  [],
  False,
  False,
- 1713248068,
+ 1717380290,
  [('run.exe',
    'C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python310\\lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\run.exe',
    'EXECUTABLE')])

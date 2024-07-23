@@ -7,7 +7,7 @@
 #Consumable - Is the item single/fixed use or infinite
 
 class Item:
-	def __init__(self, name, description, item_type, effect, effect_stat, target, consumable):
+	def __init__(self, name, description, item_type, effect, effect_stat, target, consumable,slot=None):
 		self.name = name
 		self.description = description
 		self.item_type = item_type
@@ -15,3 +15,4 @@ class Item:
 		self.effect_stat = effect_stat
 		self.target = target
 		self.consumable = consumable
+		self.slot = slot
